@@ -19,44 +19,7 @@
         background-color: #f4f7f7;
       }
 
-      .he-header {
-        background-color: #c1e3df;
-        padding: 1rem 1.5rem;
-      }
-
-      .he-logo {
-        font-weight: 700;
-        color: #0c3b5d;
-      }
-
-      .he-search {
-        border-radius: 999px;
-        border: none;
-        padding-left: 2.5rem;
-      }
-
-      .he-search-wrapper {
-        position: relative;
-        background-color: #e7f4f2;
-        border-radius: 999px;
-      }
-
-      .he-search-wrapper span {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #7a8a8a;
-      }
-
-      .he-icon-btn {
-        background-color: #0c3b5d;
-        color: #ffffff;
-        border-radius: 999px;
-        border: none;
-        padding: 0.4rem 0.9rem;
-      }
-
+      /* Sectie titels */
       .he-section-title {
         text-align: center;
         margin-top: 2rem;
@@ -71,12 +34,19 @@
         margin-bottom: 1.5rem;
       }
 
+      /* PRODUCT CARD STYLING & ANIMATIE */
       .he-product-card {
         background-color: #ffffff;
         border-radius: 18px;
         padding: 1rem;
         text-align: center;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Beweging toevoegen */
+      }
+
+      .he-product-card:hover {
+        transform: translateY(-8px); /* Omhoog bewegen bij hover */
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
       }
 
       .he-product-card img {
@@ -87,12 +57,17 @@
         margin-bottom: 0.75rem;
       }
 
-      /* category specific styling to match mockup */
+      /* CATEGORY CARD STYLING & ANIMATIE */
       .category-card {
         background: transparent;
         box-shadow: none;
         padding: 0.5rem;
         border-radius: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .category-card:hover {
+        transform: scale(1.03); /* Licht uitvergroten bij hover */
       }
 
       .category-box {
@@ -103,15 +78,21 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 0.6rem;
+        overflow: hidden;
       }
 
       .category-box img {
         max-height: 120px;
         width: auto;
         object-fit: contain;
+        transition: transform 0.5s ease;
       }
 
-      /* larger product cards when viewing a category */
+      .category-card:hover .category-box img {
+        transform: scale(1.1); /* Afbeelding in de box zoomt in */
+      }
+
+      /* Grotere kaarten in categorie overzicht */
       .product-large .he-product-card {
         padding: 1.25rem;
       }
@@ -123,88 +104,8 @@
     </style>
   </head>
   <body>
-    <!-- Navbar -->
-    <header class="he-header">
-      <div class="container-fluid">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-          <a href="index.html" class="text-decoration-none">
-            <div class="d-flex align-items-center gap-2">
-              <div
-                class="rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px; background-color: #0c3b5d;"
-              >
-                <span class="text-white fw-bold">H</span>
-              </div>
-              <span class="he-logo">HealthEase</span>
-            </div>
-          </a>
 
-          <div class="flex-grow-1 mx-3 d-none d-md-block">
-            <div class="he-search-wrapper">
-              <span class="bi bi-search"></span>
-              <input
-                type="text"
-                id="searchInput"
-                class="form-control he-search"
-                placeholder="Search for medicines..."
-              />
-            </div>
-          </div>
-
-          <div class="d-flex align-items-center gap-3">
-            <button
-              class="he-icon-btn position-relative"
-              type="button"
-              onclick="window.location.href='checkout.html'"
-            >
-              <span class="bi bi-cart"></span>
-              <span
-                id="cartCountBadge"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              ></span>
-            </button>
-            <button
-              class="btn btn-outline-dark rounded-circle border-0"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#mainMenu"
-              aria-controls="mainMenu"
-            >
-              <span class="bi bi-list" style="font-size: 1.5rem;"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Offcanvas Sidebar -->
-    <div
-      class="offcanvas offcanvas-end"
-      tabindex="-1"
-      id="mainMenu"
-      aria-labelledby="mainMenuLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="mainMenuLabel">Menu</h5>
-        <button
-          type="button"
-          class="btn-close text-reset"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body d-flex flex-column gap-2">
-        <a href="index.html" class="btn btn-link text-start">Home</a>
-        <a href="checkout.html" class="btn btn-link text-start">Cart / Checkout</a>
-        <a href="shop.html" class="btn btn-link text-start">Shop</a>
-        <a href="essentials.html" class="btn btn-link text-start">Everyday Essentials</a>
-        <a href="testimonials.html" class="btn btn-link text-start">Testimonials</a>
-        <a href="faq.html" class="btn btn-link text-start">FAQ</a>
-        <a href="contact.html" class="btn btn-link text-start">Contact Us</a>
-        <a href="login.html" class="btn btn-link text-start">Login / Signup</a>
-        <a href="account.html" class="btn btn-link text-start">My Account</a>
-      </div>
-    </div>
+    <div id="navbar-container"></div>
 
     <main class="container py-4">
       <h2 class="he-section-title">Shop by Category</h2>
@@ -214,18 +115,16 @@
 
       <div id="categoriesGrid" class="row g-3 mb-4"></div>
 
-      <div id="categoryViewHeader" class="d-flex justify-content-between align-items-center mb-3" style="display:none">
+      <div id="categoryViewHeader" class="d-flex justify-content-between align-items-center mb-4" style="display:none">
         <div id="categoryViewLeft"></div>
         <div>
-          <h4 id="categoryViewTitle" class="mb-0"></h4>
+          <h4 id="categoryViewTitle" class="mb-0 fw-bold" style="color:#0c3b5d;"></h4>
         </div>
-        <div></div>
-      </div>
+        <div style="width: 80px;"></div> </div>
 
-      <div id="productGrid" class="row g-3"></div>
+      <div id="productGrid" class="row g-4"></div>
     </main>
 
-    <!-- Product detail modal --> 
     <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -237,50 +136,26 @@
             <div class="row">
               <div class="col-md-5" id="modalImageWrap"></div>
               <div class="col-md-7">
-                <h5 id="modalProductName"></h5>
+                <h5 id="modalProductName" class="fw-bold"></h5>
                 <p id="modalProductCategory" class="text-muted small"></p>
                 <p id="modalProductDescription"></p>
-                <div class="fw-bold text-primary" id="modalProductPrice"></div>
+                <div class="fs-4 fw-bold text-primary" id="modalProductPrice"></div>
               </div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="modalAddToCart">Add to cart</button>
+            <button type="button" class="btn btn-primary rounded-pill px-4" id="modalAddToCart">Add to cart</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Cart Toast -->
-    <div
-      class="toast align-items-center text-bg-dark border-0 position-fixed bottom-0 end-0 m-3"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      id="cartToast"
-    >
-      <div class="d-flex">
-        <div class="toast-body">
-          Item added to your cart.
-        </div>
-        <div class="me-2 my-auto">
-          <a href="checkout.html" class="btn btn-sm btn-outline-light"
-            >Go to Cart</a
-          >
-        </div>
-        <button
-          type="button"
-          class="btn-close btn-close-white me-2 m-auto"
-          data-bs-dismiss="toast"
-          aria-label="Close"
-        ></button>
-      </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="shared/load-navbar.js"></script>
     <script src="app.js"></script>
-    <script src="shared/navbar.js"></script>
+
     <script>
       const categories = [
         { name: 'Vitamins', icon: 'bi-capsule' },
@@ -298,19 +173,21 @@
       ];
 
       let allProducts = [];
-      let currentShownList = [];
-      let currentModalProduct = null;
 
+      // Render Categorieën
       function renderCategories() {
         const grid = document.getElementById('categoriesGrid');
         grid.innerHTML = '';
-        // Add 'All' card
+        
+        // 'All' card
         const allCol = document.createElement('div');
         allCol.className = 'col-6 col-md-3';
-        allCol.innerHTML = `<div class="category-card" style="cursor:pointer;"><div class="category-box"><img src='https://picsum.photos/seed/all/300/200' alt='All' /></div><div class="he-product-name">All categories</div></div>`;
-        allCol.addEventListener('click', () => {
-          showProductsFor('All categories', allProducts);
-        });
+        allCol.innerHTML = `
+          <div class="category-card" style="cursor:pointer;">
+            <div class="category-box"><img src='https://picsum.photos/seed/all/300/200' alt='All' /></div>
+            <div class="he-product-name text-center fw-bold">All categories</div>
+          </div>`;
+        allCol.addEventListener('click', () => showProductsFor('All categories', allProducts));
         grid.appendChild(allCol);
 
         categories.forEach((c) => {
@@ -319,11 +196,13 @@
           col.innerHTML = `
             <div class="category-card" style="cursor:pointer;">
               <div class="category-box"><img src='https://picsum.photos/seed/${encodeURIComponent(c.name)}/300/200' alt='${c.name}' /></div>
-              <div class="he-product-name">${c.name}</div>
-            </div>
-          `;
+              <div class="he-product-name text-center fw-bold">${c.name}</div>
+            </div>`;
           col.addEventListener('click', () => {
-            const filtered = allProducts.filter((p) => (p.category || '').toLowerCase() === c.name.toLowerCase() || (p.subCategory || '').toLowerCase() === c.name.toLowerCase());
+            const filtered = allProducts.filter(p => 
+              (p.category || '').toLowerCase() === c.name.toLowerCase() || 
+              (p.subCategory || '').toLowerCase() === c.name.toLowerCase()
+            );
             showProductsFor(c.name, filtered);
           });
           grid.appendChild(col);
@@ -331,34 +210,24 @@
       }
 
       function showProductsFor(name, list) {
-        // hide categories and show header + products
         document.getElementById('categoriesGrid').style.display = 'none';
         document.getElementById('categoryViewHeader').style.display = 'flex';
         document.getElementById('categoryViewTitle').textContent = name;
-        // create back button dynamically (only in category view)
+        
         const left = document.getElementById('categoryViewLeft');
-        left.innerHTML = '';
-        const backBtn = document.createElement('button');
-        backBtn.id = 'backToCategories';
-        backBtn.className = 'btn btn-sm btn-outline-secondary';
-        backBtn.innerHTML = '&larr; Terug';
-        backBtn.addEventListener('click', () => showCategories());
-        left.appendChild(backBtn);
-        // apply larger product layout
-        document.getElementById('productGrid').classList.add('product-large');
+        left.innerHTML = '<button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="showCategories()">&larr; Terug</button>';
+        
+        const grid = document.getElementById('productGrid');
+        grid.classList.add('product-large');
         renderProducts(list);
       }
 
       function showCategories() {
         document.getElementById('categoriesGrid').style.display = '';
         document.getElementById('categoryViewHeader').style.display = 'none';
-        document.getElementById('categoryViewTitle').textContent = '';
         const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
         grid.classList.remove('product-large');
-        // remove dynamic back button if present
-        const left = document.getElementById('categoryViewLeft');
-        if (left) left.innerHTML = '';
       }
 
       async function loadProducts() {
@@ -366,50 +235,29 @@
           const res = await fetch('http://localhost:4000/api/products');
           allProducts = await res.json();
           renderCategories();
-          // Do not render products until a category is selected.
-          const grid = document.getElementById('productGrid');
-          if (grid) grid.innerHTML = '';
-        } catch (err) {
-          console.error('Failed to load products', err);
-        }
-      }
-
-      function openProductModal(product) {
-        currentModalProduct = product;
-        document.getElementById('productModalLabel').textContent = product.name;
-        document.getElementById('modalProductName').textContent = product.name;
-        document.getElementById('modalProductCategory').textContent = product.category + (product.subCategory ? ' • ' + product.subCategory : '');
-        document.getElementById('modalProductDescription').textContent = product.description || 'Geen omschrijving beschikbaar.';
-        document.getElementById('modalProductPrice').textContent = 'SRD ' + Number(product.price).toFixed(2);
-        const wrap = document.getElementById('modalImageWrap');
-        wrap.innerHTML = product.imageUrl ? `<img src="${product.imageUrl}" class="img-fluid rounded-2" alt="${product.name}" />` : '';
-        const modalEl = document.getElementById('productModal');
-        const bs = new bootstrap.Modal(modalEl);
-        bs.show();
+        } catch (err) { console.error('Error loading products', err); }
       }
 
       function renderProducts(list) {
-        currentShownList = list;
         const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
-        if (!list || !list.length) {
-          grid.innerHTML = '<p class="text-center text-muted">No products found.</p>';
+        if (!list.length) {
+          grid.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">No products found.</p></div>';
           return;
         }
+
         list.forEach((product) => {
           const col = document.createElement('div');
-          // larger product cards when in category view use col-md-4
-          const inCategoryView = document.getElementById('categoryViewHeader').style.display !== 'none';
-          col.className = inCategoryView ? 'col-12 col-md-4' : 'col-6 col-md-3';
+          col.className = 'col-12 col-md-4'; 
           col.innerHTML = `
-            <div class="he-product-card">
+            <div class="he-product-card h-100 d-flex flex-column">
               ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.name}" />` : ''}
-              <div class="fw-semibold">${product.name}</div>
-              <div class="small text-muted">${product.category || ''}</div>
-              <div class="fw-bold text-primary mt-1">SRD ${Number(product.price).toFixed(2)}</div>
-              <div class="d-flex justify-content-between mt-2">
-                <button class="btn btn-sm btn-outline-primary add-to-cart-btn">Add to cart</button>
-                <button class="btn btn-sm btn-outline-secondary more-info-btn">Meer info</button>
+              <div class="fw-bold mt-auto">${product.name}</div>
+              <div class="small text-muted mb-2">${product.category || ''}</div>
+              <div class="fw-bold text-primary fs-5 mb-3">SRD ${Number(product.price).toFixed(2)}</div>
+              <div class="d-grid gap-2">
+                <button class="btn btn-sm btn-primary rounded-pill add-to-cart-btn">Add to cart</button>
+                <button class="btn btn-sm btn-link text-decoration-none more-info-btn" style="color:#0c3b5d;">More Info</button>
               </div>
             </div>
           `;
@@ -419,31 +267,17 @@
         });
       }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        loadProducts();
+      // Modal logica
+      function openProductModal(product) {
+        document.getElementById('modalProductName').textContent = product.name;
+        document.getElementById('modalProductCategory').textContent = product.category;
+        document.getElementById('modalProductDescription').textContent = product.description;
+        document.getElementById('modalProductPrice').textContent = 'SRD ' + Number(product.price).toFixed(2);
+        document.getElementById('modalImageWrap').innerHTML = `<img src="${product.imageUrl}" class="img-fluid rounded-3" />`;
+        new bootstrap.Modal(document.getElementById('productModal')).show();
+      }
 
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-          searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allProducts.filter(
-              (p) => p.name.toLowerCase().includes(term) || (p.category || '').toLowerCase().includes(term)
-            );
-            renderProducts(filtered);
-          });
-        }
-
-        document.getElementById('modalAddToCart').addEventListener('click', () => {
-          if (currentModalProduct) {
-            addToCart(currentModalProduct);
-            const modal = bootstrap.Modal.getInstance(document.getElementById('productModal'));
-            if (modal) modal.hide();
-          }
-        });
-
-        // back button is created dynamically when viewing a category
-      });
+      window.onload = loadProducts;
     </script>
   </body>
-  </html>
-
+</html>

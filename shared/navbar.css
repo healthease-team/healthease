@@ -1,0 +1,272 @@
+/* Shared Navbar Styles for HealthEase - Clean & Enhanced */
+
+/* Header */
+.he-header {
+  background: linear-gradient(135deg, #c1e3df 0%, #a8d8d1 100%);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 20px rgba(12, 59, 93, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.he-header:hover {
+  box-shadow: 0 4px 30px rgba(12, 59, 93, 0.15);
+}
+
+/* Logo */
+.he-logo {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #0c3b5d !important;
+  letter-spacing: -0.5px;
+  transition: transform 0.2s ease;
+}
+
+.he-logo:hover {
+  transform: scale(1.05);
+}
+
+/* Search */
+.he-search-wrapper {
+  position: relative;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.he-search-wrapper:hover,
+.he-search-wrapper:focus-within {
+  background: #ffffff;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.he-search-wrapper span {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7a8a8a;
+  font-size: 1.1rem;
+  transition: color 0.2s ease;
+}
+
+.he-search-wrapper:focus-within span {
+  color: #0c3b5d;
+}
+
+.he-search {
+  border-radius: 50px;
+  border: none;
+  padding: 0.85rem 1rem 0.85rem 3rem;
+  background: transparent;
+  font-size: 0.95rem;
+}
+
+.he-search:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Right nav */
+.right-nav {
+  gap: 0.75rem;
+}
+
+/* Cart button */
+.he-icon-btn {
+  background: #0c3b5d;
+  color: #ffffff;
+  border-radius: 50px;
+  border: none;
+  padding: 0.55rem 1rem;
+  font-size: 1.1rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  min-width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.he-icon-btn:hover {
+  background: #1a5a8a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(12, 59, 93, 0.3);
+}
+
+#cartCountBadge {
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Cart dropdown */
+#cart-dropdown {
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: none;
+  padding: 1rem;
+}
+
+#cart-dropdown .cart-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+#cart-dropdown .cart-item:last-child {
+  border-bottom: none;
+}
+
+#cart-dropdown .cart-preview-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Hamburger */
+.btn[data-bs-toggle="offcanvas"] {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn[data-bs-toggle="offcanvas"]:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Offcanvas enhancements */
+.offcanvas {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fcfa 100%);
+  backdrop-filter: blur(20px);
+}
+
+.offcanvas-header {
+  border-bottom: 1px solid #e7f4f2;
+}
+
+.nav-link {
+  font-weight: 500;
+  padding: 0.875rem 1rem !important;
+  border-radius: 12px;
+  margin: 0.125rem 0;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #36b5ff;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+  transform: translateX(0);
+}
+
+.nav-link:hover {
+  background: rgba(54, 181, 255, 0.1);
+  transform: translateX(8px);
+  color: #0c3b5d !important;
+}
+
+.nav-link.active {
+  background: rgba(54, 181, 255, 0.15);
+  color: #0c3b5d !important;
+  font-weight: 600;
+}
+
+/* User badge (from navbar.js) */
+.he-user-badge {
+  background: rgba(231, 244, 242, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(207, 231, 227, 0.6) !important;
+  border-radius: 25px !important;
+  transition: all 0.3s ease;
+}
+
+.he-user-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(12, 59, 93, 0.15);
+}
+
+/* Mobile search toggle */
+@media (max-width: 767.98px) {
+  .mobile-search-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1040;
+    background: #0c3b5d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 4px 15px rgba(12, 59, 93, 0.3);
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading state */
+.navbar-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.navbar-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #36b5ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .he-header { border-bottom: 2px solid #0c3b5d; }
+  .nav-link:focus { outline: 2px solid #36b5ff; outline-offset: 2px; }
+}

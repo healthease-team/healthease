@@ -158,79 +158,72 @@
     </div>
 
     <script>
-      document
-        .getElementById('loginForm')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const form = e.target;
-          const payload = {
-            email: form.email.value,
-            password: form.password.value
-          };
-          try {
-            const res = await fetch('http://localhost:4000/api/auth/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-              const data = await res.json().catch(() => ({}));
-              throw new Error(data.error || 'Login failed');
-            }
-            const data = await res.json();
-            // store token separately and keep user info
-            if (data.token) {
-              localStorage.setItem('he_token', data.token);
-              // mark that the user just logged in so return pages can show guidance
-              sessionStorage.setItem('justLoggedIn', '1');
-            }
-            const user = { id: data.id, email: data.email, role: data.role };
-            localStorage.setItem('he_user', JSON.stringify(user));
-            // Determine where to redirect after login.
-            const params = new URLSearchParams(window.location.search);
-            const returnTo = params.get('returnTo') || sessionStorage.getItem('returnTo');
-            const ref = document.referrer;
-            const sameOriginRef = ref && new URL(ref, window.location.href).origin === window.location.origin ? ref : null;
-            if (user.role === 'PHARMACY') {
-              window.location.href = 'pharmacy-dashboard.html';
-            } else if (user.role === 'ADMIN') {
-              window.location.href = 'admin-dashboard.html';
-            } else {
-              if (returnTo) {
-                sessionStorage.removeItem('returnTo');
-                window.location.href = returnTo;
-              } else if (sameOriginRef) {
-                window.location.href = sameOriginRef;
-              } else {
-                window.location.href = 'index.html';
-              }
-            }
-          } catch (err) {
-            alert(err.message);
-          }
+  document
+    .getElementById('loginForm')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const payload = {
+        email: form.email.value,
+        password: form.password.value
+      };
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'Login failed');
+        }
+        const data = await res.json();
+        
+        if (data.token) {
+          localStorage.setItem('he_token', data.token);
+          sessionStorage.setItem('justLoggedIn', '1');
+        }
 
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-          e.preventDefault();
-          alert('Registration flow not implemented in this demo. Please ask the admin to create your account.');
-        });
+        // Sla de user informatie op, inclusief een 'display name'
+        const user = { 
+          id: data.id, 
+          email: data.email, 
+          role: data.role,
+          name: data.name || data.email.split('@')[0] // Gebruikt naam of deel van email
+        };
+        localStorage.setItem('he_user', JSON.stringify(user));
 
-        // Toggle between login and register views
-        const showRegister = document.getElementById('showRegister');
-        const showLogin = document.getElementById('showLogin');
-        const loginView = document.getElementById('loginView');
-        const registerView = document.getElementById('registerView');
-        if (showRegister) showRegister.addEventListener('click', (e) => {
-          e.preventDefault();
-          loginView.style.display = 'none';
-          registerView.style.display = '';
-        });
-        if (showLogin) showLogin.addEventListener('click', (e) => {
-          e.preventDefault();
-          registerView.style.display = 'none';
-          loginView.style.display = '';
-        });
-    </script>
+        if (user.role === 'PHARMACY') {
+          window.location.href = 'pharmacy-dashboard.html';
+        } else if (user.role === 'ADMIN') {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          window.location.href = 'account.html';
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Registration flow not implemented in this demo.');
+    });
+
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginView = document.getElementById('loginView');
+    const registerView = document.getElementById('registerView');
+    if (showRegister) showRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginView.style.display = 'none';
+      registerView.style.display = '';
+    });
+    if (showLogin) showLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerView.style.display = 'none';
+      loginView.style.display = '';
+    });
+</script>
   </body>
   </html>
-

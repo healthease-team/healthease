@@ -17,252 +17,241 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
           sans-serif;
         background-color: #f4f7f7;
-      }
-
-      .he-header {
-        background-color: #c1e3df;
-        padding: 1rem 1.5rem;
-      }
-
-      .he-logo {
-        font-weight: 700;
         color: #0c3b5d;
       }
 
-      .he-icon-btn {
-        background-color: #0c3b5d;
-        color: #ffffff;
+      /* FORM WRAPPER DESIGN */
+      .he-form-wrapper {
+        background: linear-gradient(135deg, #c1e3df 0%, #d5efec 100%);
+        border-radius: 30px;
+        padding: 4rem 2rem;
+        margin: 2rem 1rem;
+        box-shadow: 0 15px 35px rgba(12, 59, 93, 0.08);
+        transition: transform 0.3s ease;
+      }
+
+      /* TOGGLE PILL ANIMATIE */
+      .he-toggle-pill {
+        background: rgba(255, 255, 255, 0.5);
+        padding: 6px;
         border-radius: 999px;
-        border: none;
-        padding: 0.4rem 0.9rem;
+        display: inline-flex;
+        border: 1px solid rgba(12, 59, 93, 0.1);
       }
 
       .he-toggle-pill button {
         border-radius: 999px;
-        padding: 0.4rem 1.4rem;
-        border: 2px solid #0c3b5d;
-        background-color: #e7f4f2;
+        padding: 0.6rem 1.8rem;
+        border: none;
+        background-color: transparent;
         color: #0c3b5d;
-        font-weight: 600;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .he-toggle-pill button.active {
         background-color: #0c3b5d;
         color: #ffffff;
+        box-shadow: 0 4px 12px rgba(12, 59, 93, 0.2);
+        transform: scale(1.05);
       }
 
-      .he-form-wrapper {
-        background-color: #c1e3df;
-        border-radius: 18px;
-        padding: 2rem;
-        margin: 1.5rem;
+      /* INPUT STYLING */
+      .form-control {
+        border-radius: 15px;
+        padding: 0.8rem 1.2rem;
+        border: 1px solid rgba(12, 59, 93, 0.1);
+        background-color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+      }
+
+      .form-control:focus {
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(193, 227, 223, 0.5);
+        border-color: #0c3b5d;
+        transform: translateY(-2px);
+      }
+
+      /* SEND BUTTON ANIMATIE */
+      .btn-send {
+        background-color: #0c3b5d;
+        color: #ffffff;
+        border-radius: 999px;
+        padding: 0.8rem 2.5rem;
+        font-weight: 700;
+        border: none;
+        transition: all 0.3s ease;
+      }
+
+      .btn-send:hover {
+        background-color: #164e7a;
+        color: white;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(12, 59, 93, 0.2);
+      }
+
+      /* INFO BOXES */
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding: 1rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.3);
+        transition: background 0.3s ease;
+      }
+
+      .info-item:hover {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .info-icon {
+        width: 45px;
+        height: 45px;
+        background: #0c3b5d;
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
       }
     </style>
   </head>
   <body>
-    <!-- Navbar -->
-    <header class="he-header">
-      <div class="container-fluid">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-          <a href="index.html" class="text-decoration-none">
-            <div class="d-flex align-items-center gap-2">
-              <div
-                class="rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px; background-color: #0c3b5d;"
-              >
-                <span class="text-white fw-bold">H</span>
+
+    <div id="navbar-container"></div>
+
+    <main class="container py-4">
+      <div class="he-form-wrapper">
+        <div class="row g-5 align-items-center">
+          
+          <div class="col-lg-5">
+            <h1 class="display-5 fw-bold mb-3" style="color: #0c3b5d;">
+              Get in Touch
+            </h1>
+            <p class="fs-5 text-muted mb-4">
+              Heb je vragen of hulp nodig? Ons team staat klaar om je te ondersteunen met deskundig advies.
+            </p>
+            
+            <div class="he-toggle-pill mb-5">
+              <button id="consultingBtn" type="button" class="active">Consulting</button>
+              <button id="sponsoringBtn" type="button">Sponsoring</button>
+            </div>
+
+            <div class="info-item">
+              <div class="info-icon"><i class="bi bi-geo-alt"></i></div>
+              <div>
+                <div class="small text-muted">Locatie</div>
+                <div class="fw-bold">Paramaribo, Suriname</div>
               </div>
-              <span class="he-logo">HealthEase</span>
             </div>
-          </a>
-          <div class="flex-grow-1 mx-3 d-none d-md-block"></div>
-          <div class="d-flex align-items-center gap-3">
-            <button
-              class="he-icon-btn position-relative"
-              type="button"
-              onclick="window.location.href='checkout.html'"
-            >
-              <span class="bi bi-cart"></span>
-              <span
-                id="cartCountBadge"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              ></span>
-            </button>
-            <button
-              class="btn btn-outline-dark rounded-circle border-0"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#mainMenu"
-              aria-controls="mainMenu"
-            >
-              <span class="bi bi-list" style="font-size: 1.5rem;"></span>
-            </button>
+
+            <div class="info-item">
+              <div class="info-icon"><i class="bi bi-envelope"></i></div>
+              <div>
+                <div class="small text-muted">Email ons</div>
+                <div class="fw-bold">support@healthease.sr</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-4 p-md-5" style="border-radius: 25px;">
+              <form id="contactForm" class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Full Name</label>
+                  <input type="text" class="form-control" name="name" placeholder="John Doe" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Email</label>
+                  <input type="email" class="form-control" name="email" placeholder="john@example.com" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Location</label>
+                  <input type="text" class="form-control" name="location" placeholder="Paramaribo" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Subject</label>
+                  <input type="text" class="form-control" name="subject" placeholder="How can we help?" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Your Message</label>
+                  <textarea name="message" class="form-control" rows="4" placeholder="Vertel ons meer..." required></textarea>
+                </div>
+                <div class="col-12 mt-4 text-end">
+                  <button type="submit" class="btn btn-send">
+                    Send Message <i class="bi bi-send ms-2"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
-    </header>
-
-    <!-- Offcanvas Sidebar -->
-    <div
-      class="offcanvas offcanvas-end"
-      tabindex="-1"
-      id="mainMenu"
-      aria-labelledby="mainMenuLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="mainMenuLabel">Menu</h5>
-        <button
-          type="button"
-          class="btn-close text-reset"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body d-flex flex-column gap-2">
-        <a href="index.html" class="btn btn-link text-start">Home</a>
-        <a href="checkout.html" class="btn btn-link text-start">Cart / Checkout</a>
-        <a href="shop.html" class="btn btn-link text-start">Shop</a>
-        <a href="essentials.html" class="btn btn-link text-start">Everyday Essentials</a>
-        <a href="testimonials.html" class="btn btn-link text-start">Testimonials</a>
-        <a href="faq.html" class="btn btn-link text-start">FAQ</a>
-        <a href="contact.html" class="btn btn-link text-start">Contact Us</a>
-        <a href="login.html" class="btn btn-link text-start">Login / Signup</a>
-        <a href="account.html" class="btn btn-link text-start">My Account</a>
-      </div>
-    </div>
-
-    <div class="he-form-wrapper">
-      <div class="row g-4">
-        <div class="col-md-5">
-          <h2 class="mb-2" style="color: #0c3b5d; font-weight: 700;">
-            Get in Touch with a Consultant
-          </h2>
-          <p class="text-muted">
-            Have questions or need help? We're just a message away! Reach out to
-            our team and we'll assist you with anything you need.
-          </p>
-          <div class="he-toggle-pill d-flex gap-3 mt-3">
-            <button id="consultingBtn" type="button" class="active">
-              Consulting
-            </button>
-            <button id="sponsoringBtn" type="button">Sponsoring</button>
-          </div>
-        </div>
-        <div class="col-md-7">
-          <form id="contactForm" class="row g-3">
-            <div class="col-md-6">
-              <input
-                type="text"
-                class="form-control"
-                name="name"
-                placeholder="Full Name"
-                required
-              />
-            </div>
-            <div class="col-md-6">
-              <input
-                type="email"
-                class="form-control"
-                name="email"
-                placeholder="Email"
-                required
-              />
-            </div>
-            <div class="col-md-6">
-              <input
-                type="text"
-                class="form-control"
-                name="location"
-                placeholder="Location"
-              />
-            </div>
-            <div class="col-md-6">
-              <input
-                type="text"
-                class="form-control"
-                name="subject"
-                placeholder="Subject"
-              />
-            </div>
-            <div class="col-12">
-              <textarea
-                name="message"
-                class="form-control"
-                rows="4"
-                placeholder="Message"
-                required
-              ></textarea>
-            </div>
-            <div class="col-12">
-              <button
-                type="submit"
-                class="btn"
-                style="
-                  background-color: #0c3b5d;
-                  color: #ffffff;
-                  border-radius: 999px;
-                  padding-inline: 2rem;
-                "
-              >
-                Send Message
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="shared/load-navbar.js"></script>
     <script src="app.js"></script>
+
     <script>
       let messageType = 'Consulting';
 
-      document
-        .getElementById('consultingBtn')
-        .addEventListener('click', () => {
-          messageType = 'Consulting';
-          document.getElementById('consultingBtn').classList.add('active');
-          document.getElementById('sponsoringBtn').classList.remove('active');
-        });
+      // Toggle logica met animatie-ondersteuning
+      const cBtn = document.getElementById('consultingBtn');
+      const sBtn = document.getElementById('sponsoringBtn');
 
-      document
-        .getElementById('sponsoringBtn')
-        .addEventListener('click', () => {
-          messageType = 'Sponsoring';
-          document.getElementById('sponsoringBtn').classList.add('active');
-          document.getElementById('consultingBtn').classList.remove('active');
-        });
+      cBtn.addEventListener('click', () => {
+        messageType = 'Consulting';
+        cBtn.classList.add('active');
+        sBtn.classList.remove('active');
+      });
 
-      document
-        .getElementById('contactForm')
-        .addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const form = e.target;
-          const payload = {
-            name: form.name.value,
-            email: form.email.value,
-            location: form.location.value,
-            type: messageType,
-            message: form.message.value
-          };
+      sBtn.addEventListener('click', () => {
+        messageType = 'Sponsoring';
+        sBtn.classList.add('active');
+        cBtn.classList.remove('active');
+      });
 
-          try {
-            const res = await fetch('http://localhost:4000/api/contact', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-              throw new Error('Failed to send message');
-            }
-            alert('Message sent successfully. Thank you!');
-            form.reset();
-          } catch (err) {
-            console.error(err);
-            alert('Could not send message, please try again.');
-          }
-        });
+      document.getElementById('contactForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('.btn-send');
+        
+        // Simpel loading effect
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Sending...';
+        submitBtn.disabled = true;
+
+        const payload = {
+          name: form.name.value,
+          email: form.email.value,
+          location: form.location.value,
+          type: messageType,
+          message: form.message.value
+        };
+
+        try {
+          const res = await fetch('http://localhost:4000/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!res.ok) throw new Error('Failed to send');
+          
+          alert('Thank you! Your message has been sent.');
+          form.reset();
+        } catch (err) {
+          console.error(err);
+          alert('Oops! Something went wrong. Please try again later.');
+        } finally {
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
+        }
+      });
     </script>
   </body>
-  </html>
-
+</html>

@@ -2,70 +2,100 @@ document.addEventListener('DOMContentLoaded', () => {
   function safeQuery(sel, ctx=document) { return Array.from((ctx || document).querySelectorAll(sel) || []); }
   const userRaw = localStorage.getItem('he_user');
   const user = userRaw ? JSON.parse(userRaw) : null;
+  const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
-  // Replace login links in offcanvas menus with account/logout when logged in
-  const replaceLoginLinks = () => {
-    safeQuery('a[href="login.html"]').forEach(a => {
-      if (user) {
-        a.textContent = 'Logout';
-        a.href = '#';
-        a.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('he_user'); localStorage.removeItem('he_token'); window.location.reload(); });
-      } else {
-        // When clicking login, remember where we came from
-        a.addEventListener('click', () => sessionStorage.setItem('returnTo', window.location.pathname));
+  // Active nav highlighting
+  const setActiveNav = () => {
+    safeQuery('.nav-link').forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === currentPath) {
+        link.classList.add('active');
       }
     });
   };
 
-  // Ensure My Account links are visible and direct to account.html
-  const ensureAccountLinks = () => {
-    safeQuery('a[href="account.html"]').forEach(a => { a.style.display = 'block'; });
-  };
-
-  // Show user badge in header if possible (improved UI)
-  const showHeaderUser = () => {
-    const headers = safeQuery('.he-header');
-
-    headers.forEach(h => {
-      if (!h.querySelector('.he-user-badge')) {
-        const div = document.createElement('div');
-        div.className = 'he-user-badge d-flex align-items-center gap-3 px-3 py-2 rounded-pill shadow';
-        div.style.background = '#e7f4f2';
-        div.style.border = '1px solid #cfe7e3';
-
-        if (user) {
-          const initials = user.email ? user.email.charAt(0).toUpperCase() : 'U';
-
-          div.innerHTML = `
-            <div style="width:38px;height:38px;border-radius:50%;background:#0c3b5d;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.15);">
-              ${initials}
-            </div>
-            <div style="color:#0c3b5d;font-size:13px;font-weight:600;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              ${user.email}
-            </div>
-            <a href="#" class="small text-danger text-decoration-none ms-2" id="heLogout">Logout</a>
-          `;
-        } else {
-          div.innerHTML = `<a href="login.html" class="text-decoration-none fw-semibold">Login</a>`;
-        }
-
-        const right = h.querySelector('.d-flex.align-items-center.gap-3');
-        if (right) right.appendChild(div);
-
-        const logoutBtn = div.querySelector('#heLogout');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            localStorage.removeItem('he_user');
-            localStorage.removeItem('he_token');
-            window.location.reload();
-          });
+  // Search handler
+  const searchInput = document.getElementById('navbar-search');
+  if (searchInput) {
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const term = searchInput.value.trim();
+        if (term) {
+          window.location.href = `shop.html?search=${encodeURIComponent(term)}`;
         }
       }
     });
-  };
+  }
 
-  replaceLoginLinks();
-  ensureAccountLinks();
-  showHeaderUser();
+  // Cart preview
+  const cartPreview = document.getElementById('cart-dropdown');
+  if (cartPreview && typeof getCartItems === 'function') {
+    const updateCartPreview = () => {
+      const items = getCartItems();
+      cartPreview.innerHTML = items.length ? 
+        items.map(item => `
+          <li>
+            <div class="dropdown-item cart-item">
+              <div>${item.name}</div>
+              <div class="small text-muted">Qty: ${item.qty || 1} × SRD ${item.price.toFixed(2)}</div>
+            </div>
+          </li>
+        `).join('') + '<li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center fw-bold" href="checkout.html">View Cart</a></li>' :
+        '<li><span class="dropdown-item text-center py-2">Cart empty</span></li>';
+    };
+    updateCartPreview();
+    // Listen for cart changes
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'he_cart') updateCartPreview();
+    });
+  }
+
+  // Replace login links with logout/account
+  safeQuery('a[href="login.html"]').forEach(a => {
+    if (user) {
+      a.textContent = 'Logout';
+      a.href = '#';
+      a.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        localStorage.removeItem('he_user'); 
+        localStorage.removeItem('he_token'); 
+        window.location.reload(); 
+      });
+    } else {
+      a.addEventListener('click', () => sessionStorage.setItem('returnTo', currentPath));
+    }
+  });
+
+  // User badge in right-nav
+  const rightNav = document.querySelector('.right-nav');
+  if (rightNav && !rightNav.querySelector('.he-user-badge')) {
+    const div = document.createElement('div');
+    div.className = 'he-user-badge d-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow-sm flex-shrink-0';
+    
+    if (user) {
+      const initials = user.email?.charAt(0).toUpperCase() || 'U';
+      div.innerHTML = `
+        <div style="width:32px;height:32px;border-radius:50%;background:#0c3b5d;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">
+          ${initials}
+        </div>
+        <div style="color:#0c3b5d;font-size:12px;font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-grow:1;">
+          ${user.email}
+        </div>
+        <button class="btn btn-sm text-danger p-0 ms-1" style="font-size:11px;">Logout</button>
+      `;
+      div.querySelector('button').addEventListener('click', (e) => {
+        e.stopPropagation();
+        localStorage.removeItem('he_user');
+        localStorage.removeItem('he_token');
+        window.location.reload();
+      });
+    } else {
+      div.innerHTML = `<a href="login.html" class="text-decoration-none small fw-semibold text-muted">Login</a>`;
+    }
+    
+    rightNav.insertBefore(div, rightNav.firstChild);
+  }
+
+  setActiveNav();
+  if (typeof updateCartBadge === 'function') updateCartBadge();
 });

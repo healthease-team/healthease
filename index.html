@@ -19,44 +19,7 @@
         background-color: #f4f7f7;
       }
 
-      .he-header {
-        background-color: #c1e3df; /* mintgroen */
-        padding: 1rem 1.5rem;
-      }
-
-      .he-logo {
-        font-weight: 700;
-        color: #0c3b5d; /* donkerblauw */
-      }
-
-      .he-search {
-        border-radius: 999px;
-        border: none;
-        padding-left: 2.5rem;
-      }
-
-      .he-search-wrapper {
-        position: relative;
-        background-color: #e7f4f2;
-        border-radius: 999px;
-      }
-
-      .he-search-wrapper span {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #7a8a8a;
-      }
-
-      .he-icon-btn {
-        background-color: #0c3b5d;
-        color: #ffffff;
-        border-radius: 999px;
-        border: none;
-        padding: 0.4rem 0.9rem;
-      }
-
+      /* Hero & Homepage styling */
       .he-hero {
         background-color: #c1e3df;
         padding: 3rem 1.5rem;
@@ -115,6 +78,11 @@
         padding: 1rem;
         text-align: center;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s ease;
+      }
+
+      .he-product-card:hover {
+        transform: translateY(-5px);
       }
 
       .he-product-card img {
@@ -129,12 +97,6 @@
         font-weight: 600;
         color: #0c3b5d;
         font-size: 0.95rem;
-      }
-
-      .he-product-price {
-        color: #0077c2;
-        font-weight: 600;
-        margin-top: 0.25rem;
       }
 
       .he-footer {
@@ -153,89 +115,9 @@
     </style>
   </head>
   <body>
-    <!-- Header / Navbar -->
-    <header class="he-header">
-      <div class="container-fluid">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-          <a href="index.html" class="text-decoration-none">
-            <div class="d-flex align-items-center gap-2">
-              <div
-                class="rounded-circle d-flex align-items-center justify-content-center"
-                style="width: 40px; height: 40px; background-color: #0c3b5d;"
-              >
-                <span class="text-white fw-bold">H</span>
-              </div>
-              <span class="he-logo">HealthEase</span>
-            </div>
-          </a>
 
-          <div class="flex-grow-1 mx-3 d-none d-md-block">
-            <div class="he-search-wrapper">
-              <span class="bi bi-search"></span>
-              <input
-                type="text"
-                class="form-control he-search"
-                placeholder="Search for medicines..."
-              />
-            </div>
-          </div>
+    <div id="navbar-container"></div>
 
-          <div class="d-flex align-items-center gap-3">
-            <button
-              class="he-icon-btn position-relative"
-              type="button"
-              onclick="window.location.href='checkout.html'"
-            >
-              <span class="bi bi-cart"></span>
-              <span
-                id="cartCountBadge"
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              ></span>
-            </button>
-            <button
-              class="btn btn-outline-dark rounded-circle border-0"
-              type="button"
-              data-bs-toggle="offcanvas"
-              data-bs-target="#mainMenu"
-              aria-controls="mainMenu"
-            >
-              <span class="bi bi-list" style="font-size: 1.5rem;"></span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Offcanvas Sidebar -->
-    <div
-      class="offcanvas offcanvas-end"
-      tabindex="-1"
-      id="mainMenu"
-      aria-labelledby="mainMenuLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="mainMenuLabel">Menu</h5>
-        <button
-          type="button"
-          class="btn-close text-reset"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body d-flex flex-column gap-2">
-        <a href="index.html" class="btn btn-link text-start">Home</a>
-        <a href="checkout.html" class="btn btn-link text-start">Cart / Checkout</a>
-        <a href="shop.html" class="btn btn-link text-start">Shop</a>
-        <a href="essentials.html" class="btn btn-link text-start">Everyday Essentials</a>
-        <a href="testimonials.html" class="btn btn-link text-start">Testimonials</a>
-        <a href="faq.html" class="btn btn-link text-start">FAQ</a>
-        <a href="contact.html" class="btn btn-link text-start">Contact Us</a>
-        <a href="login.html" class="btn btn-link text-start">Login / Signup</a>
-        <a href="account.html" class="btn btn-link text-start">My Account</a>
-      </div>
-    </div>
-
-    <!-- Hero Section -->
     <section class="he-hero">
       <div class="container">
         <div class="row align-items-center">
@@ -283,7 +165,6 @@
       </div>
     </section>
 
-    <!-- Everyday Must-Haves -->
     <section class="py-4">
       <div class="container">
         <div class="d-flex justify-content-between align-items-center">
@@ -296,25 +177,25 @@
 
         <div id="mustHaveProducts" class="row g-3">
           <div class="col-6 col-md-3">
-            <div class="he-product-card" style="border-radius:18px;">
+            <div class="he-product-card">
               <img src="/images/first_aid_basics.png" alt="First Aid" />
               <div class="he-product-name mt-2">First Aid Basics</div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="he-product-card" style="border-radius:18px;">
+            <div class="he-product-card">
               <img src="/images/allergy.png" alt="Allergy" />
               <div class="he-product-name mt-2">Allergy</div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="he-product-card" style="border-radius:18px;">
+            <div class="he-product-card">
               <img src="/images/immune_support.png" alt="Immune Support" />
               <div class="he-product-name mt-2">Immune Support</div>
             </div>
           </div>
           <div class="col-6 col-md-3">
-            <div class="he-product-card" style="border-radius:18px;">
+            <div class="he-product-card">
               <img src="/images/pain_and_fever_relief.png" alt="Pain & Fever" />
               <div class="he-product-name mt-2">Pain &amp; Fever Relief</div>
             </div>
@@ -323,7 +204,6 @@
       </div>
     </section>
 
-    <!-- Category highlight cards -->
     <section class="py-4">
       <div class="container">
         <div class="d-flex justify-content-between align-items-center">
@@ -363,7 +243,6 @@
       </div>
     </section>
 
-    <!-- Locations Modal -->
     <div class="modal fade" id="locationsModal" tabindex="-1" aria-labelledby="locationsModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -372,31 +251,14 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p class="text-muted">Lijst met voorbeelden (Paramaribo, Wanica, Nickerie)</p>
             <div class="list-group">
               <div class="list-group-item">
                 <div class="fw-bold">Central Pharmacy - Paramaribo</div>
                 <div class="small">Waterkant 1, Paramaribo</div>
-                <div class="small">Tel: +597 123-4567</div>
-                <div class="small">Openingstijden: Ma-Za 08:00 - 20:00</div>
-              </div>
-              <div class="list-group-item">
-                <div class="fw-bold">Northside Pharmacy - Paramaribo Noord</div>
-                <div class="small">Anamoestraat 10, Paramaribo-Noord</div>
-                <div class="small">Tel: +597 234-5678</div>
-                <div class="small">Openingstijden: Ma-Za 09:00 - 18:00</div>
               </div>
               <div class="list-group-item">
                 <div class="fw-bold">Wanica Health - Lelydorp</div>
                 <div class="small">Hoofdstraat 5, Lelydorp</div>
-                <div class="small">Tel: +597 345-6789</div>
-                <div class="small">Openingstijden: Ma-Za 08:00 - 19:00</div>
-              </div>
-              <div class="list-group-item">
-                <div class="fw-bold">Nickerie Pharmacy - Nieuw Nickerie</div>
-                <div class="small">Keizerstraat 12, Nieuw Nickerie</div>
-                <div class="small">Tel: +597 456-7890</div>
-                <div class="small">Openingstijden: Ma-Za 08:00 - 17:00</div>
               </div>
             </div>
           </div>
@@ -408,72 +270,14 @@
     </div>
 
     <footer class="he-footer">
-      <div class="container">
-        <div class="row gy-3">
-          <div class="col-md-4">
-            <h6 class="fw-bold">HealthEase</h6>
-            <p class="mb-1">
-              Your trusted online drugstore for every need.
-            </p>
-            <p class="mb-0 small">
-              Shop smart, live well, feel better.
-            </p>
-          </div>
-          <div class="col-md-4">
-            <h6 class="fw-bold">Jump back to</h6>
-            <ul class="list-unstyled small mb-0">
-              <li><a href="shop.html" class="text-decoration-none">Shop</a></li>
-              <li><a href="essentials.html" class="text-decoration-none">Everyday Must-Haves</a></li>
-              <li><a href="faq.html" class="text-decoration-none">FAQ</a></li>
-              <li><a href="contact.html" class="text-decoration-none">Contact</a></li>
-            </ul>
-          </div>
-          <div class="col-md-4">
-            <h6 class="fw-bold">Find us on</h6>
-            <div class="d-flex gap-2">
-              <span class="bi bi-instagram"></span>
-              <span class="bi bi-facebook"></span>
-            </div>
-            <p class="small mt-2 mb-0">© 2025 HealthEase. All rights reserved.</p>
-          </div>
-        </div>
+      <div class="container text-center">
+        <p class="mb-0 small">© 2026 HealthEase. All rights reserved.</p>
       </div>
     </footer>
 
-    <!-- Cart Toast -->
-    <div
-      class="toast align-items-center text-bg-dark border-0 position-fixed bottom-0 end-0 m-3"
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      id="cartToast"
-    >
-      <div class="d-flex">
-        <div class="toast-body">
-          Item added to your cart.
-        </div>
-        <div class="me-2 my-auto">
-          <a href="checkout.html" class="btn btn-sm btn-outline-light"
-            >Go to Cart</a
-          >
-        </div>
-        <button
-          type="button"
-          class="btn-close btn-close-white me-2 m-auto"
-          data-bs-dismiss="toast"
-          aria-label="Close"
-        ></button>
-      </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="shared/load-navbar.js"></script>
     <script src="app.js"></script>
-    <script src="shared/navbar.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        if (typeof updateCartBadge === 'function') updateCartBadge();
-      });
-    </script>
   </body>
-  </html>
-
+</html>
