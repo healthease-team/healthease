@@ -102,10 +102,7 @@
       }
 
       async function loadOrders() {
-        const tkn = localStorage.getItem('he_token');
-        const res = await fetch('http://localhost:4000/api/orders', {
-          headers: { Authorization: 'Bearer ' + tkn }
-        });
+        const res = await fetch('http://localhost:4000/api/orders');
         const orders = await res.json();
         const tbody = document.querySelector('#ordersTable tbody');
         tbody.innerHTML = '';
@@ -148,3 +145,4 @@
     </script>
   </body>
   </html>
+

@@ -10,7 +10,6 @@
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; background-color: #f4f7f7; color: #0c3b5d; }
         
-        /* Belangrijk voor de layout met de nieuwe navbar */
         .he-page { padding: 2rem 1rem; }
         @media (min-width: 768px) { .he-page { padding: 3rem 5rem; } }
         
@@ -307,8 +306,7 @@
 
         window.onload = init;
 
-        // Voeg dit toe onderaan je script, bij de andere event listeners
-document.getElementById('clearCartBtn').onclick = () => {
+      document.getElementById('clearCartBtn').onclick = () => {
     if (confirm('Weet je zeker dat je de winkelwagen wilt legen?')) {
         // 1. Verwijder de cart uit localStorage
         localStorage.removeItem('he_cart');
