@@ -204,64 +204,70 @@
     <script src="shared/load-navbar.js"></script>
     <script src="app.js"></script>
 
-    <script>
-        const categories = [
-            { name: 'Morning Essentials', img: 'images/morning_essentials.png' },
-            { name: 'On-the-go', img: 'images/on_the_go.png' },
-            { name: 'Night Care', img: 'images/night_care.png' },
-            { name: 'Travel Kit', img: 'images/travel.png' },
-            { name: 'Office Care', img: 'images/office.png' },
-            { name: 'Sports', img: 'images/sports.png' }
-        ];
+<script>
+    const categories = [
+        { name: 'Morning Essentials', img: 'images/morning_essentials.png' },
+        { name: 'On-the-go', img: 'images/on_the_go.png' },
+        { name: 'Night Care', img: 'images/night_care.png' },
+        { name: 'Travel Kit', img: 'images/travel.png' },
+        { name: 'Office Care', img: 'images/office.png' },
+        { name: 'Sports', img: 'images/sports.png' }
+    ];
 
-        let allProducts = [];
+    let allProducts = [];
 
-        async function init() {
-            try {
-                const res = await fetch('http://localhost:4000/api/products');
-                allProducts = await res.json();
-                renderCategories();
-            } catch (err) { console.error("Fout bij laden:", err); }
+    async function init() {
+        try {
+            const res = await fetch('http://localhost:4000/api/products');
+            allProducts = await res.json();
+            renderCategories();
+        } catch (err) { 
+            console.error("Fout bij laden van producten:", err); 
         }
+    }
 
-        function renderCategories() {
-            const grid = document.getElementById('categoriesGrid');
-            const productGrid = document.getElementById('productGrid');
-            const header = document.getElementById('categoryViewHeader');
+    function renderCategories() {
+        const grid = document.getElementById('categoriesGrid');
+        const productGrid = document.getElementById('productGrid');
+        const header = document.getElementById('categoryViewHeader');
 
-            grid.innerHTML = '';
-            productGrid.innerHTML = '';
-            grid.style.display = 'flex';
-            header.style.setProperty('display', 'none', 'important');
+        grid.innerHTML = '';
+        productGrid.innerHTML = '';
+        grid.style.display = 'flex';
+        header.style.setProperty('display', 'none', 'important');
 
-            categories.forEach(c => {
-                const col = document.createElement('div');
-                col.className = 'col-12 col-md-4';
-                col.innerHTML = `
-                    <div class="category-card-hero">
-                        <div class="ess-frame">
-                            <div class="icon-wrap">
-                                <img src="${c.img}" alt="${c.name}" onerror="this.src='https://placehold.co/250x250?text=Icon'">
-                            </div>
+        categories.forEach(c => {
+            const col = document.createElement('div');
+            col.className = 'col-12 col-md-4';
+            col.innerHTML = `
+                <div class="category-card-hero">
+                    <div class="ess-frame">
+                        <div class="icon-wrap">
+                            <img src="${c.img}" alt="${c.name}" onerror="this.src='https://placehold.co/250x250?text=Icon'">
                         </div>
-                        <div class="category-label">${c.name}</div>
                     </div>
-                `;
-                col.onclick = () => showProducts(c.name);
-                grid.appendChild(col);
-            });
-        }
+                    <div class="category-label">${c.name}</div>
+                </div>
+            `;
+            col.onclick = () => showProducts(c.name);
+            grid.appendChild(col);
+        });
+    }
 
-        function showProducts(catName) {
-            document.getElementById('categoriesGrid').style.display = 'none';
-            const header = document.getElementById('categoryViewHeader');
-            header.style.setProperty('display', 'flex', 'important');
-            document.getElementById('categoryViewTitle').textContent = catName;
+    function showProducts(catName) {
+        document.getElementById('categoriesGrid').style.display = 'none';
+        const header = document.getElementById('categoryViewHeader');
+        header.style.setProperty('display', 'flex', 'important');
+        document.getElementById('categoryViewTitle').textContent = catName;
 
-            const filtered = allProducts.filter(p => p.subCategory === catName);
-            const productGrid = document.getElementById('productGrid');
+        const filtered = allProducts.filter(p => p.subCategory === catName);
+        const productGrid = document.getElementById('productGrid');
+        
+        productGrid.innerHTML = filtered.length ? filtered.map(p => {
+            // We bereiden het product-object voor om veilig als string mee te geven
+            const productData = JSON.stringify(p).replace(/'/g, "&apos;").replace(/"/g, '&quot;');
             
-            productGrid.innerHTML = filtered.length ? filtered.map(p => `
+            return `
                 <div class="col-12 col-md-4 mb-4">
                     <div class="he-product-card h-100 d-flex flex-column">
                         <img src="${p.imageUrl || 'https://placehold.co/200'}" alt="${p.name}">
@@ -269,15 +275,28 @@
                         <p class="text-muted small">${p.category}</p>
                         <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
                             <span class="fw-bold text-primary fs-5">SRD ${Number(p.price).toFixed(2)}</span>
-                            <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="addToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})">Add</button>
+                            <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="addToCart(${productData})">Add</button>
                         </div>
                     </div>
                 </div>
-            `).join('') : '<div class="col-12 text-center py-5"><p class="text-muted fs-5">Geen producten gevonden in deze collectie.</p></div>';
-        }
+            `;
+        }).join('') : '<div class="col-12 text-center py-5"><p class="text-muted fs-5">Geen producten gevonden.</p></div>';
+    }
 
-        document.getElementById('backBtn').onclick = renderCategories;
-        window.onload = init;
-    </script>
+    document.getElementById('backBtn').onclick = renderCategories;
+    window.onload = init;
+</script>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cartToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span id="toastMessage">Product toegevoegd aan winkelwagen!</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

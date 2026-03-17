@@ -220,8 +220,6 @@
         { name: 'Diabetic Care', image: 'images/diabetic_care.png' },
         { name: 'Supplements', image: 'images/supplements.png' },
         { name: 'Devices', image: 'images/medical_devices.png' },
-
-        // Extra categories (also seeded)
         { name: 'Vitamins', image: 'images/immune_support.png' },
         { name: 'First Aid', image: 'images/first_aid_basics.png' },
         { name: 'Allergy', image: 'images/allergy.png' },
@@ -364,5 +362,18 @@
     </script>
     <div id="footer-container"></div>
     <script src="shared/load-footer.js"></script>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cartToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span id="toastMessage">Product toegevoegd aan winkelwagen!</span>
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
   </body>
 </html>

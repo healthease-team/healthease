@@ -16,7 +16,7 @@ async function main() {
   await prisma.message.deleteMany();
   await prisma.product.deleteMany();
 
-  // Define categories (up to 20 for the shop grid)
+  // Define categories 
   const categories = [
     // Homepage categories (must match shop + index links)
     'Personal care',
@@ -45,35 +45,35 @@ async function main() {
 
   const productSets = {
     'Personal care': [
-      { name: 'Hydrating Body Lotion (250ml)', price: 85.0, imageUrl: 'images/products/lotion.svg', subCategory: 'Morning Essentials' },
-      { name: 'Aloe Vera Hand Cream (75ml)', price: 45.0, imageUrl: 'images/products/lotion.svg', subCategory: 'On-the-go' },
-      { name: 'Gentle Shampoo (300ml)', price: 70.0, imageUrl: 'images/products/shampoo.svg', subCategory: 'Night Care' },
-      { name: 'Moisturizing Face Wash', price: 60.0, imageUrl: 'images/products/lotion.svg', subCategory: 'Travel Kit' },
-      { name: 'Deodorant Roll-on', price: 35.0, imageUrl: 'images/products/shampoo.svg', subCategory: 'Office Care' }
+      { name: 'Hydrating Body Lotion (250ml)', price: 85.0, imageUrl: 'images/products/bodylotion.png', subCategory: 'Morning Essentials' },
+      { name: 'Aloe Vera Hand Cream (75ml)', price: 45.0, imageUrl: 'images/products/aloevera.png', subCategory: 'On-the-go' },
+      { name: 'Gentle Shampoo (300ml)', price: 70.0, imageUrl: 'images/products/shampoo.png', subCategory: 'Night Care' },
+      { name: 'Moisturizing Face Wash', price: 60.0, imageUrl: 'images/products/face_wash.png', subCategory: 'Travel Kit' },
+      { name: 'Deodorant Roll-on', price: 35.0, imageUrl: 'images/products/deo.png', subCategory: 'Office Care' }
     ],
     'Diabetic Care': [
-      { name: 'Glucose Test Strips (50ct)', price: 180.0, imageUrl: 'images/products/glucose_strips.svg', subCategory: 'Office Care' },
-      { name: 'Lancets (100ct)', price: 55.0, imageUrl: 'images/products/glucose_strips.svg', subCategory: 'On-the-go' },
-      { name: 'Alcohol Swabs (100ct)', price: 40.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' },
-      { name: 'Sugar-Free Glucose Tablets', price: 65.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'On-the-go' }
+      { name: 'Glucose Test Strips (50ct)', price: 180.0, imageUrl: 'images/products/teststrips.png', subCategory: 'Office Care' },
+      { name: 'Lancets (100ct)', price: 55.0, imageUrl: 'images/products/lancets.png', subCategory: 'On-the-go' },
+      { name: 'Alcohol Swabs (100ct)', price: 40.0, imageUrl: 'images/products/alcohol-swabs.png', subCategory: 'Travel Kit' },
+      { name: 'Sugar-Free Glucose Tablets', price: 65.0, imageUrl: 'images/products/glucose_tablets.png', subCategory: 'On-the-go' }
     ],
     Supplements: [
-      { name: 'Vitamin C 1000mg (30 tablets)', price: 95.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' },
-      { name: 'Multivitamin Daily (60 tablets)', price: 140.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' },
-      { name: 'Omega-3 Fish Oil (60 softgels)', price: 160.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Sports' },
-      { name: 'Magnesium (30 tablets)', price: 80.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Night Care' }
+      { name: 'Vitamin C 1000mg (30 tablets)', price: 95.0, imageUrl: 'images/products/supplements1.png', subCategory: 'Morning Essentials' },
+      { name: 'Multivitamin Daily (60 tablets)', price: 140.0, imageUrl: 'images/products/sup2.png', subCategory: 'Morning Essentials' },
+      { name: 'Omega-3 Fish Oil (60 softgels)', price: 160.0, imageUrl: 'images/products/sup3.png', subCategory: 'Sports' },
+      { name: 'Magnesium (30 tablets)', price: 80.0, imageUrl: 'images/products/sup4.png', subCategory: 'Night Care' }
     ],
     Devices: [
-      { name: 'Digital Thermometer', price: 120.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'Office Care' },
-      { name: 'Blood Pressure Monitor', price: 450.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'Office Care' },
-      { name: 'First Aid Kit (Travel)', price: 220.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' }
+      { name: 'Digital Thermometer', price: 120.0, imageUrl: 'images/products/device1.png', subCategory: 'Office Care' },
+      { name: 'Blood Pressure Monitor', price: 450.0, imageUrl: 'images/products/device2.png', subCategory: 'Office Care' },
+      { name: 'First Aid Kit (Travel)', price: 220.0, imageUrl: 'images/products/device3.png', subCategory: 'Travel Kit' }
     ],
     Vitamins: [
-      { name: 'Vitamin D3 2000IU (60 tablets)', price: 110.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' }
+      { name: 'Vitamin D3 2000IU (60 tablets)', price: 110.0, imageUrl: 'images/products/vitamin1.png', subCategory: 'Morning Essentials' }
     ],
     'First Aid': [
-      { name: 'Elastic Bandage', price: 55.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' },
-      { name: 'Antiseptic Wipes (20ct)', price: 35.0, imageUrl: 'images/products/bandages.svg', subCategory: 'On-the-go' }
+      { name: 'Elastic Bandage', price: 55.0, imageUrl: 'images/products/bandages.png', subCategory: 'Travel Kit' },
+      { name: 'Antiseptic Wipes (20ct)', price: 35.0, imageUrl: 'images/products/wipes1.png', subCategory: 'On-the-go' }
     ],
     Allergy: [
       { name: 'Allergy Relief Tablets', price: 90.0, imageUrl: categoryImage['Allergy'], subCategory: 'Morning Essentials' }

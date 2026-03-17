@@ -35,6 +35,15 @@
                     <div class="he-panel">
                         <h4 class="he-title">Order Summary</h4>
                         <div id="cartItems" class="mb-3"></div>
+                        <div id="cartItems" class="mb-3"></div>
+
+                         <div class="text-end mb-3">
+                            <button type="button" id="clearCartBtn" class="btn btn-sm btn-outline-danger border-0">
+                                <i class="bi bi-trash3 me-1"></i> Clear Cart
+                                  </button>
+                                </div>
+
+                        <hr>
                         <hr>
                         <div class="small d-grid gap-2">
                             <div class="d-flex justify-content-between"><span>Bag Total</span><span id="bagTotalText">SRD 0.00</span></div>
@@ -297,6 +306,22 @@
         };
 
         window.onload = init;
+
+        // Voeg dit toe onderaan je script, bij de andere event listeners
+document.getElementById('clearCartBtn').onclick = () => {
+    if (confirm('Weet je zeker dat je de winkelwagen wilt legen?')) {
+        // 1. Verwijder de cart uit localStorage
+        localStorage.removeItem('he_cart');
+        
+        // 2. Herlaad de cart weergave op deze pagina
+        loadCart();
+        
+        // 3. Update de badge in de navbar (functie uit app.js)
+        if (typeof updateCartBadge === 'function') {
+            updateCartBadge();
+        }
+    }
+};
     </script>
 </body>
 </html>
