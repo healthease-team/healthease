@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const bcrypt = require('bcryptjs');
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -8,35 +9,107 @@ function randInt(min, max) {
 async function main() {
   console.log('Start seeding full dataset...');
 
+  // Make seed idempotent (safe to re-run)
+  await prisma.stock.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.review.deleteMany();
+  await prisma.message.deleteMany();
+  await prisma.product.deleteMany();
+
   // Define categories (up to 20 for the shop grid)
   const categories = [
+    // Homepage categories (must match shop + index links)
+    'Personal care',
+    'Diabetic Care',
+    'Supplements',
+    'Devices',
+    // Extra categories (still supported)
     'Vitamins',
     'First Aid',
-    'Skincare',
-    'Diabetes',
-    'Pain Relief',
-    'Maternal',
-    'Cold & Flu',
-    'Digestive',
     'Allergy',
-    'Oral Care',
-    'Children',
-    'Supplements'
+    'Immune Support',
+    'Pain & Fever Relief'
   ];
 
-  // Create 20 products per category (realistic test data)
+  const categoryImage = {
+    'Personal care': 'images/personal_care.png',
+    'Diabetic Care': 'images/diabetic_care.png',
+    Supplements: 'images/supplements.png',
+    Devices: 'images/medical_devices.png',
+    Vitamins: 'images/immune_support.png',
+    'First Aid': 'images/first_aid_basics.png',
+    Allergy: 'images/allergy.png',
+    'Immune Support': 'images/immune_support.png',
+    'Pain & Fever Relief': 'images/pain_and_fever_relief.png'
+  };
+
+  const productSets = {
+    'Personal care': [
+      { name: 'Hydrating Body Lotion (250ml)', price: 85.0, imageUrl: 'images/products/lotion.svg', subCategory: 'Morning Essentials' },
+      { name: 'Aloe Vera Hand Cream (75ml)', price: 45.0, imageUrl: 'images/products/lotion.svg', subCategory: 'On-the-go' },
+      { name: 'Gentle Shampoo (300ml)', price: 70.0, imageUrl: 'images/products/shampoo.svg', subCategory: 'Night Care' },
+      { name: 'Moisturizing Face Wash', price: 60.0, imageUrl: 'images/products/lotion.svg', subCategory: 'Travel Kit' },
+      { name: 'Deodorant Roll-on', price: 35.0, imageUrl: 'images/products/shampoo.svg', subCategory: 'Office Care' }
+    ],
+    'Diabetic Care': [
+      { name: 'Glucose Test Strips (50ct)', price: 180.0, imageUrl: 'images/products/glucose_strips.svg', subCategory: 'Office Care' },
+      { name: 'Lancets (100ct)', price: 55.0, imageUrl: 'images/products/glucose_strips.svg', subCategory: 'On-the-go' },
+      { name: 'Alcohol Swabs (100ct)', price: 40.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' },
+      { name: 'Sugar-Free Glucose Tablets', price: 65.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'On-the-go' }
+    ],
+    Supplements: [
+      { name: 'Vitamin C 1000mg (30 tablets)', price: 95.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' },
+      { name: 'Multivitamin Daily (60 tablets)', price: 140.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' },
+      { name: 'Omega-3 Fish Oil (60 softgels)', price: 160.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Sports' },
+      { name: 'Magnesium (30 tablets)', price: 80.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Night Care' }
+    ],
+    Devices: [
+      { name: 'Digital Thermometer', price: 120.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'Office Care' },
+      { name: 'Blood Pressure Monitor', price: 450.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'Office Care' },
+      { name: 'First Aid Kit (Travel)', price: 220.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' }
+    ],
+    Vitamins: [
+      { name: 'Vitamin D3 2000IU (60 tablets)', price: 110.0, imageUrl: 'images/products/vitamin_c.svg', subCategory: 'Morning Essentials' }
+    ],
+    'First Aid': [
+      { name: 'Elastic Bandage', price: 55.0, imageUrl: 'images/products/bandages.svg', subCategory: 'Travel Kit' },
+      { name: 'Antiseptic Wipes (20ct)', price: 35.0, imageUrl: 'images/products/bandages.svg', subCategory: 'On-the-go' }
+    ],
+    Allergy: [
+      { name: 'Allergy Relief Tablets', price: 90.0, imageUrl: categoryImage['Allergy'], subCategory: 'Morning Essentials' }
+    ],
+    'Immune Support': [
+      { name: 'Immune Support Gummies', price: 120.0, imageUrl: categoryImage['Immune Support'], subCategory: 'Morning Essentials' }
+    ],
+    'Pain & Fever Relief': [
+      { name: 'Paracetamol 500mg (20 tablets)', price: 40.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'On-the-go' },
+      { name: 'Ibuprofen 200mg (20 tablets)', price: 55.0, imageUrl: 'images/products/thermometer.svg', subCategory: 'On-the-go' }
+    ]
+  };
+
   for (const cat of categories) {
-    for (let i = 1; i <= 20; i++) {
-      const name = `${cat} Product ${i}`;
-      const price = randInt(40, 400) + (Math.random() < 0.5 ? 0.0 : 0.5);
+    const base = productSets[cat] || [];
+    // Add a few generic fillers so every category has enough items for UI testing
+    const fillers = Array.from({ length: 6 }, (_, idx) => {
+      const n = idx + 1;
+      return {
+        name: `${cat} Essentials ${n}`,
+        price: randInt(40, 240) + (Math.random() < 0.5 ? 0.0 : 0.5),
+        imageUrl: categoryImage[cat] || 'images/shop_all_cat.png',
+        subCategory: ['Morning Essentials', 'On-the-go', 'Night Care', 'Travel Kit', 'Office Care', 'Sports'][n % 6]
+      };
+    });
+
+    const items = [...base, ...fillers];
+    for (const item of items) {
       await prisma.product.create({
         data: {
-          name,
-          description: `Beschrijving voor ${name}. Geschikt voor ${cat.toLowerCase()}.`,
-          price: price,
+          name: item.name,
+          description: `Productomschrijving voor ${item.name}.`,
+          price: item.price,
           category: cat,
-          subCategory: ['Morning Essentials','On-the-go','Night Care','Travel Kit','Office Care','Sports'][i % 6],
-          imageUrl: `https://picsum.photos/seed/${encodeURIComponent(name)}/300/200`
+          subCategory: item.subCategory,
+          imageUrl: item.imageUrl
         }
       });
     }
@@ -95,38 +168,35 @@ async function main() {
     }
   }
 
+  const adminPasswordHash = await bcrypt.hash('admin123', 10);
+  const pharmacyPasswordHash = await bcrypt.hash('pharmacy123', 10);
+  const userPasswordHash = await bcrypt.hash('user123', 10);
+
   // Admin + pharmacy users
+  await prisma.user.deleteMany();
   await prisma.user.createMany({
     data: [
       {
         email: 'admin@healtease.test',
-        password: 'admin123',
+        password: adminPasswordHash,
         name: 'HealthEase Admin',
         role: 'ADMIN'
       },
       {
         email: 'central@healtease.test',
-        password: 'pharmacy123',
+        password: pharmacyPasswordHash,
         name: 'Central Pharmacy User',
         role: 'PHARMACY'
-      }
-    ],
-    skipDuplicates: true
-  });
-  
-  // Add a default regular user for testing
-  await prisma.user.createMany({
-    data: [
+      },
       {
         email: 'user@healtease.test',
-        password: 'user123',
+        password: userPasswordHash,
         name: 'Test User',
         role: 'CUSTOMER'
       }
-    ],
-    skipDuplicates: true
+    ]
   });
-
+  
   // A few sample reviews
   await prisma.review.createMany({
     data: [

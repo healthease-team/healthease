@@ -11,7 +11,7 @@
 
   try {
     // Fetch navbar HTML
-    const response = await fetch('/shared/navbar.html');
+    const response = await fetch('shared/navbar.html');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     let navbarHTML = await response.text();
@@ -29,19 +29,18 @@
       const cssLink = document.createElement('link');
       cssLink.id = 'shared-navbar-css';
       cssLink.rel = 'stylesheet';
-      cssLink.href = '/shared/navbar.css';
+      cssLink.href = 'shared/navbar.css';
       document.head.appendChild(cssLink);
     }
     
-    // Load navbar.js and app.js if not loaded
-    ['shared/navbar.js', 'app.js'].forEach(src => {
-      if (!Array.from(document.scripts).some(s => s.src.includes(src))) {
-        const script = document.createElement('script');
-        script.src = `/${src}`;
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    });
+    // Load navbar behavior script if not loaded
+    const navbarScriptSrc = 'shared/navbar.js';
+    if (!Array.from(document.scripts).some((s) => s.src.includes(navbarScriptSrc))) {
+      const script = document.createElement('script');
+      script.src = navbarScriptSrc;
+      script.async = true;
+      document.body.appendChild(script);
+    }
     
     // Trigger resize for Bootstrap components
     window.dispatchEvent(new Event('resize'));

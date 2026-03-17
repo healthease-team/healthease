@@ -205,9 +205,45 @@
       }
     });
 
-    document.getElementById('registerForm').addEventListener('submit', (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      alert('Registration flow not implemented in this demo.');
+      const form = e.target;
+      const password = form.password.value;
+      const passwordRepeat = form.passwordRepeat.value;
+      if (password !== passwordRepeat) {
+        alert('Passwords do not match.');
+        return;
+      }
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: form.email.value,
+            password: password
+          })
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'Registration failed');
+        }
+        const data = await res.json();
+
+        if (data.token) {
+          localStorage.setItem('he_token', data.token);
+          sessionStorage.setItem('justLoggedIn', '1');
+        }
+        const user = {
+          id: data.id,
+          email: data.email,
+          role: data.role,
+          name: data.name || data.email.split('@')[0]
+        };
+        localStorage.setItem('he_user', JSON.stringify(user));
+        window.location.href = 'account.html';
+      } catch (err) {
+        alert(err.message);
+      }
     });
 
     const showRegister = document.getElementById('showRegister');

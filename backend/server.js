@@ -6,6 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -144,15 +145,66 @@ app.post('/api/auth/login', async (req, res) => {
   }
   try {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || user.password !== password) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    // Backward-compatible auth:
+    // - If DB has a bcrypt hash, verify normally
+    // - If DB still has a legacy plaintext password, allow login and upgrade to bcrypt
+    let ok = false;
+    const looksLikeBcrypt = typeof user.password === 'string' && user.password.startsWith('$2');
+    if (looksLikeBcrypt) {
+      ok = await bcrypt.compare(password, user.password);
+    } else {
+      ok = user.password === password;
+      if (ok) {
+        const upgraded = await bcrypt.hash(password, 10);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { password: upgraded }
+        });
+      }
+    }
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     // Sign JWT token
     const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ id: user.id, email: user.email, role: user.role, token });
+    res.json({ id: user.id, email: user.email, role: user.role, name: user.name, token });
   } catch (err) {
     console.error('Login error', err);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Auth: register a new customer account
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password, name } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Missing credentials' });
+  }
+  if (typeof password !== 'string' || password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters' });
+  }
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashed,
+        name: name || null,
+        role: 'CUSTOMER'
+      }
+    });
+
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ id: user.id, email: user.email, role: user.role, name: user.name, token });
+  } catch (err) {
+    console.error('Register error', err);
+    res.status(500).json({ error: 'Registration failed' });
   }
 });
 
@@ -170,6 +222,14 @@ function authenticateToken(req, res, next) {
   }
 }
 
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user) return res.status(401).json({ error: 'Missing token' });
+    if (!roles.includes(req.user.role)) return res.status(403).json({ error: 'Forbidden' });
+    next();
+  };
+}
+
 // Pharmacies basic listing
 app.get('/api/pharmacies', async (req, res) => {
   try {
@@ -182,12 +242,20 @@ app.get('/api/pharmacies', async (req, res) => {
 });
 
 // Pharmacy dashboard: stock for a pharmacy
-app.get('/api/pharmacies/:id/stock', async (req, res) => {
+app.get('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid pharmacy id' });
   }
   try {
+    // Pharmacy can only view their own stock
+    if (req.user.role === 'PHARMACY') {
+      const user = await prisma.user.findUnique({ where: { id: Number(req.user.id) } });
+      if (user && user.email) {
+        const pharmacy = await prisma.pharmacy.findUnique({ where: { email: user.email } });
+        if (pharmacy && pharmacy.id !== id) return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
     const stock = await prisma.stock.findMany({
       where: { pharmacyId: id },
       include: { product: true }
@@ -200,12 +268,20 @@ app.get('/api/pharmacies/:id/stock', async (req, res) => {
 });
 
 // Pharmacy dashboard: orders for a pharmacy
-app.get('/api/pharmacies/:id/orders', async (req, res) => {
+app.get('/api/pharmacies/:id/orders', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid pharmacy id' });
   }
   try {
+    // Pharmacy can only view their own orders
+    if (req.user.role === 'PHARMACY') {
+      const user = await prisma.user.findUnique({ where: { id: Number(req.user.id) } });
+      if (user && user.email) {
+        const pharmacy = await prisma.pharmacy.findUnique({ where: { email: user.email } });
+        if (pharmacy && pharmacy.id !== id) return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
     const orders = await prisma.order.findMany({
       where: { pharmacyId: id },
       orderBy: { createdAt: 'desc' }
@@ -218,7 +294,7 @@ app.get('/api/pharmacies/:id/orders', async (req, res) => {
 });
 
 // Admin: list all orders
-app.get('/api/orders', async (req, res) => {
+app.get('/api/orders', authenticateToken, requireRole('ADMIN'), async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: 'desc' },
@@ -272,13 +348,20 @@ app.patch('/api/orders/:id/status', authenticateToken, async (req, res) => {
 });
 
 // Update stock quantity for one product in a pharmacy
-app.patch('/api/pharmacies/:id/stock', async (req, res) => {
+app.patch('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
   const id = Number(req.params.id);
   const { productId, quantity } = req.body;
   if (Number.isNaN(id) || !productId || typeof quantity !== 'number') {
     return res.status(400).json({ error: 'Invalid data' });
   }
   try {
+    if (req.user.role === 'PHARMACY') {
+      const user = await prisma.user.findUnique({ where: { id: Number(req.user.id) } });
+      if (user && user.email) {
+        const pharmacy = await prisma.pharmacy.findUnique({ where: { email: user.email } });
+        if (pharmacy && pharmacy.id !== id) return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
     const existing = await prisma.stock.findFirst({
       where: { pharmacyId: id, productId }
     });
@@ -297,6 +380,27 @@ app.patch('/api/pharmacies/:id/stock', async (req, res) => {
   } catch (err) {
     console.error('Error updating stock', err);
     res.status(500).json({ error: 'Failed to update stock' });
+  }
+});
+
+// Create a review (testimonial)
+app.post('/api/reviews', async (req, res) => {
+  const { author, comment, rating } = req.body || {};
+  const ratingInt = Number(rating);
+  if (!author || !comment || Number.isNaN(ratingInt)) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  if (ratingInt < 1 || ratingInt > 5) {
+    return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+  }
+  try {
+    const created = await prisma.review.create({
+      data: { author, comment, rating: ratingInt }
+    });
+    res.status(201).json(created);
+  } catch (err) {
+    console.error('Error creating review', err);
+    res.status(500).json({ error: 'Failed to submit review' });
   }
 });
 
@@ -349,6 +453,17 @@ app.post(
       let distanceKm = null;
       let deliveryFee = 0;
 
+      // Always route orders to Central Pharmacy (business requirement)
+      selectedPharmacy = await prisma.pharmacy.findUnique({
+        where: { email: 'central@healtease.test' }
+      });
+      if (!selectedPharmacy) {
+        selectedPharmacy = await prisma.pharmacy.findFirst({ where: { name: 'Central Pharmacy' } });
+      }
+      if (!selectedPharmacy) {
+        return res.status(500).json({ error: 'Central Pharmacy not configured' });
+      }
+
       if (deliveryMethod === 'Delivery') {
         const lat = Number(customerLat);
         const lng = Number(customerLng);
@@ -356,20 +471,6 @@ app.post(
           return res
             .status(400)
             .json({ error: 'Customer coordinates are required for delivery' });
-        }
-
-        if (pharmacyId) {
-          selectedPharmacy = await prisma.pharmacy.findUnique({
-            where: { id: Number(pharmacyId) }
-          });
-        }
-
-        // If no pharmacy selected, default to Central Pharmacy
-        if (!selectedPharmacy) {
-          selectedPharmacy = await prisma.pharmacy.findUnique({ where: { email: 'central@healtease.test' } });
-          if (!selectedPharmacy) {
-            selectedPharmacy = await prisma.pharmacy.findFirst({ where: { name: 'Central Pharmacy' } });
-          }
         }
 
         distanceKm = haversine(lat, lng, selectedPharmacy.lat, selectedPharmacy.lng);
@@ -381,21 +482,6 @@ app.post(
 
         const baseFee = 10 * distanceKm;
         deliveryFee = Math.max(100, Number(baseFee.toFixed(2)));
-      }
-
-      // Ensure we have a pharmacy assigned for both Delivery and Pick up
-      if (!selectedPharmacy) {
-        // Try to resolve from provided pharmacyId (works for Pick up too)
-        if (pharmacyId) {
-          selectedPharmacy = await prisma.pharmacy.findUnique({ where: { id: Number(pharmacyId) } });
-        }
-        // Default to Central Pharmacy if still not found
-        if (!selectedPharmacy) {
-          selectedPharmacy = await prisma.pharmacy.findUnique({ where: { email: 'central@healtease.test' } });
-          if (!selectedPharmacy) {
-            selectedPharmacy = await prisma.pharmacy.findFirst({ where: { name: 'Central Pharmacy' } });
-          }
-        }
       }
 
       const adminFee = 30.0;

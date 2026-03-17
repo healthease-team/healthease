@@ -150,10 +150,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const categories = [
-            { name: 'Vitamins' }, { name: 'First Aid' }, { name: 'Skincare' },
-            { name: 'Diabetes' }, { name: 'Pain Relief' }, { name: 'Maternal' },
-            { name: 'Cold & Flu' }, { name: 'Digestive' }, { name: 'Allergy' },
-            { name: 'Oral Care' }, { name: 'Children' }, { name: 'Supplements' }
+            { name: 'Personal care' },
+            { name: 'Diabetic Care' },
+            { name: 'Supplements' },
+            { name: 'Devices' },
+            { name: 'Vitamins' },
+            { name: 'First Aid' },
+            { name: 'Allergy' },
+            { name: 'Immune Support' },
+            { name: 'Pain & Fever Relief' }
         ];
 
         let allProducts = [];
@@ -209,7 +214,10 @@
         }
 
         async function refreshStockData() {
-            const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/stock`);
+            const tkn = localStorage.getItem('he_token');
+            const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/stock`, {
+                headers: { 'Authorization': 'Bearer ' + tkn }
+            });
             currentPharmacyStock = await res.json();
             renderStock(allProducts);
         }
@@ -264,9 +272,10 @@
 
         async function saveStock(productId) {
             const qty = document.getElementById(`qty-${productId}`).value;
+            const tkn = localStorage.getItem('he_token');
             const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/stock`, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tkn },
                 body: JSON.stringify({ productId, quantity: Number(qty) })
             });
             if(res.ok) {
@@ -280,7 +289,10 @@
         }
 
         async function loadOrders() {
-            const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/orders`);
+            const tkn = localStorage.getItem('he_token');
+            const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/orders`, {
+                headers: { 'Authorization': 'Bearer ' + tkn }
+            });
             const orders = await res.json();
             const container = document.getElementById('ordersManage');
             container.innerHTML = orders.length ? '' : '<p class="text-muted text-center py-4">Geen bestellingen gevonden.</p>';

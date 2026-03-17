@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <rect width="800" height="600" rx="36" fill="#fff7e6"/>
+  <circle cx="400" cy="290" r="130" fill="#ffb703" opacity="0.25"/>
+  <circle cx="400" cy="290" r="90" fill="#ffffff" stroke="#0c3b5d" stroke-width="6"/>
+  <text x="400" y="300" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="44" fill="#0c3b5d" font-weight="800">C</text>
+  <text x="400" y="390" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="26" fill="#0c3b5d" font-weight="700">VITAMIN C</text>
+  <text x="400" y="510" text-anchor="middle" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="22" fill="#0c3b5d" opacity="0.85">HealthEase</text>
+</svg>

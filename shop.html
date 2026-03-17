@@ -215,21 +215,29 @@
 
     <script>
       const categories = [
-        { name: 'Vitamins', icon: 'bi-capsule' },
-        { name: 'First Aid', icon: 'bi-bandage' },
-        { name: 'Skincare', icon: 'bi-droplet' },
-        { name: 'Diabetes', icon: 'bi-heart-pulse' },
-        { name: 'Pain Relief', icon: 'bi-thermometer-half' },
-        { name: 'Maternal', icon: 'bi-heart' },
-        { name: 'Cold & Flu', icon: 'bi-cloud-drizzle' },
-        { name: 'Digestive', icon: 'bi-egg-fried' },
-        { name: 'Allergy', icon: 'bi-patch-exclamation' },
-        { name: 'Oral Care', icon: 'bi-braces' },
-        { name: 'Children', icon: 'bi-emoji-smile' },
-        { name: 'Supplements', icon: 'bi-bottle' }
+        // Must match homepage category links
+        { name: 'Personal care', image: 'images/personal_care.png' },
+        { name: 'Diabetic Care', image: 'images/diabetic_care.png' },
+        { name: 'Supplements', image: 'images/supplements.png' },
+        { name: 'Devices', image: 'images/medical_devices.png' },
+
+        // Extra categories (also seeded)
+        { name: 'Vitamins', image: 'images/immune_support.png' },
+        { name: 'First Aid', image: 'images/first_aid_basics.png' },
+        { name: 'Allergy', image: 'images/allergy.png' },
+        { name: 'Immune Support', image: 'images/immune_support.png' },
+        { name: 'Pain & Fever Relief', image: 'images/pain_and_fever_relief.png' }
       ];
 
       let allProducts = [];
+      let lastModalProduct = null;
+
+      function normalize(str) {
+        return String(str || '')
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, ' ');
+      }
 
       function renderCategories() {
         const grid = document.getElementById('categoriesGrid');
@@ -239,7 +247,7 @@
         allCol.className = 'col-6 col-md-3';
         allCol.innerHTML = `
           <div class="category-card" style="cursor:pointer;">
-            <div class="category-box"><img src='/images/shop_all_cat.png' alt='All' /></div>
+            <div class="category-box"><img src='images/shop_all_cat.png' alt='All' /></div>
             <div class="text-center fw-bold">All categories</div>
           </div>`;
         allCol.addEventListener('click', () => showProductsFor('All categories', allProducts));
@@ -250,14 +258,11 @@
           col.className = 'col-6 col-md-3';
           col.innerHTML = `
             <div class="category-card" style="cursor:pointer;">
-              <div class="category-box"><img src='https://picsum.photos/seed/${encodeURIComponent(c.name)}/300/200' alt='${c.name}' /></div>
+              <div class="category-box"><img src='${c.image}' alt='${c.name}' /></div>
               <div class="text-center fw-bold">${c.name}</div>
             </div>`;
           col.addEventListener('click', () => {
-            const filtered = allProducts.filter(p => 
-              (p.category || '').toLowerCase() === c.name.toLowerCase() || 
-              (p.subCategory || '').toLowerCase() === c.name.toLowerCase()
-            );
+            const filtered = allProducts.filter((p) => normalize(p.category) === normalize(c.name));
             showProductsFor(c.name, filtered);
           });
           grid.appendChild(col);
@@ -286,7 +291,29 @@
           const res = await fetch('http://localhost:4000/api/products');
           allProducts = await res.json();
           renderCategories();
+          applyInitialFilterFromUrl();
         } catch (err) { console.error('Error loading products', err); }
+      }
+
+      function applyInitialFilterFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const category = params.get('category');
+        const search = params.get('search');
+
+        if (category) {
+          const filtered = allProducts.filter((p) => normalize(p.category) === normalize(category));
+          showProductsFor(category, filtered);
+          return;
+        }
+
+        if (search) {
+          const q = normalize(search);
+          const filtered = allProducts.filter((p) => {
+            const hay = normalize(`${p.name} ${p.category} ${p.subCategory} ${p.description}`);
+            return hay.includes(q);
+          });
+          showProductsFor(`Search: ${search}`, filtered);
+        }
       }
 
       function renderProducts(list) {
@@ -319,19 +346,23 @@
       }
 
       function openProductModal(product) {
+        lastModalProduct = product;
         document.getElementById('modalProductName').textContent = product.name;
         document.getElementById('modalProductCategory').textContent = product.category;
         document.getElementById('modalProductDescription').textContent = product.description || 'Geen beschrijving beschikbaar.';
         document.getElementById('modalProductPrice').textContent = 'SRD ' + Number(product.price).toFixed(2);
-        document.getElementById('modalImageWrap').innerHTML = `<img src="${product.imageUrl}" class="img-fluid rounded-4 shadow-sm" />`;
+        const safeImg = product.imageUrl || 'images/shop_all_cat.png';
+        document.getElementById('modalImageWrap').innerHTML = `<img src="${safeImg}" alt="${product.name}" class="img-fluid rounded-4 shadow-sm" />`;
         new bootstrap.Modal(document.getElementById('productModal')).show();
       }
+
+      document.getElementById('modalAddToCart').addEventListener('click', () => {
+        if (lastModalProduct) addToCart(lastModalProduct);
+      });
 
       window.onload = loadProducts;
     </script>
     <div id="footer-container"></div>
-
-<script src="shared/load-navbar.js"></script>
-<script src="shared/load-footer.js"></script> <script src="app.js"></script>
+    <script src="shared/load-footer.js"></script>
   </body>
 </html>

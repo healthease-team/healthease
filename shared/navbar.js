@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initNavbar() {
   function safeQuery(sel, ctx=document) { return Array.from((ctx || document).querySelectorAll(sel) || []); }
   const userRaw = localStorage.getItem('he_user');
   const user = userRaw ? JSON.parse(userRaw) : null;
@@ -98,4 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setActiveNav();
   if (typeof updateCartBadge === 'function') updateCartBadge();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNavbar, { once: true });
+} else {
+  initNavbar();
+}
