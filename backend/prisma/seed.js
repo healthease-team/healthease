@@ -10,6 +10,7 @@ async function main() {
   console.log('Start seeding full dataset...');
 
   // Make seed idempotent (safe to re-run)
+  await prisma.orderItem.deleteMany();
   await prisma.stock.deleteMany();
   await prisma.order.deleteMany();
   await prisma.review.deleteMany();
@@ -168,20 +169,13 @@ async function main() {
     }
   }
 
-  const adminPasswordHash = await bcrypt.hash('admin123', 10);
   const pharmacyPasswordHash = await bcrypt.hash('pharmacy123', 10);
   const userPasswordHash = await bcrypt.hash('user123', 10);
 
-  // Admin + pharmacy users
+  // Demo pharmacy + customer users
   await prisma.user.deleteMany();
   await prisma.user.createMany({
     data: [
-      {
-        email: 'admin@healtease.test',
-        password: adminPasswordHash,
-        name: 'HealthEase Admin',
-        role: 'ADMIN'
-      },
       {
         email: 'central@healtease.test',
         password: pharmacyPasswordHash,

@@ -24,6 +24,20 @@
         .stock-input { width: 80px; text-align: center; border-radius: 8px; }
         .order-card { background: white; border-radius: 15px; padding: 1.25rem; margin-bottom: 1rem; border-left: 6px solid var(--he-accent); }
         .status-badge { font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 999px; background-color: var(--he-dark); color: white; }
+        .status-ready-for-delivery { background: #e8dcff; color: #5b21b6; }
+        .status-on-its-way { background: #d1ecf1; color: #0c5460; }
+        .status-ready-for-pickup { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .order-toggle { border: none; background: transparent; color: var(--he-dark); padding: 0; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; margin-top: 0.9rem; }
+        .order-toggle i { transition: transform 0.2s ease; }
+        .order-toggle[aria-expanded="true"] i { transform: rotate(180deg); }
+        .order-items { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid rgba(12,59,93,0.08); }
+        .order-item { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.92rem; margin-bottom: 0.4rem; }
+        .order-costs { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px dashed rgba(12,59,93,0.12); }
+        .order-cost-row { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.92rem; margin-bottom: 0.35rem; }
+        .order-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .order-filter-btn { border-radius: 999px; }
         .doc-preview-box { min-height: 250px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 12px; overflow: hidden; }
         .doc-preview-box img { max-width: 100%; max-height: 300px; object-fit: contain; }
     </style>
@@ -58,6 +72,13 @@
             <div class="col-lg-4">
                 <div class="he-card">
                     <h3 class="he-title mb-4">Recente Bestellingen</h3>
+                    <div class="order-filters" id="orderFilters">
+                        <button type="button" class="btn btn-sm btn-dark order-filter-btn active" data-filter="ALL">All</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark order-filter-btn" data-filter="PENDING">Pending Orders</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark order-filter-btn" data-filter="READY_FOR_DELIVERY">Ready for Delivery</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark order-filter-btn" data-filter="ON_ITS_WAY">On Its Way</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark order-filter-btn" data-filter="READY_FOR_PICKUP">Ready for Pickup</button>
+                    </div>
                     <div id="ordersManage" style="max-height: 80vh; overflow-y: auto;"></div>
                 </div>
             </div>
@@ -145,8 +166,83 @@
     <script>
         const categories = [{name:'Personal care'}, {name:'Vitamins'}, {name:'First Aid'}, {name:'Pain & Fever Relief'}];
         let allProducts = [], currentPharmacyStock = [], currentPharmacyId = null;
+        let allOrders = [], currentOrderFilter = 'ALL';
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        function formatStatusLabel(status) {
+            return String(status || '')
+                .toLowerCase()
+                .split('_')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        }
+
+        function renderOrderDetails(order) {
+            const itemsHtml = Array.isArray(order.items) && order.items.length
+                ? `
+                    <div class="order-items">
+                        <div class="small fw-bold text-muted mb-2">BESTELDE ITEMS</div>
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.productName} x${item.quantity}</span>
+                                <span class="fw-semibold">SRD ${(Number(item.unitPrice) * Number(item.quantity)).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `
+                : `<div class="small text-muted mt-3">Geen itemdetails beschikbaar.</div>`;
+
+            const costsHtml = `
+                <div class="order-costs">
+                    <div class="small fw-bold text-muted mb-2">KOSTENOVERZICHT</div>
+                    <div class="order-cost-row"><span>Bag total</span><span>SRD ${Number(order.bagTotal || 0).toFixed(2)}</span></div>
+                    <div class="order-cost-row"><span>Admin fee</span><span>SRD ${Number(order.adminFee || 0).toFixed(2)}</span></div>
+                    <div class="order-cost-row"><span>Platform fee</span><span>SRD ${Number(order.platformFee || 0).toFixed(2)}</span></div>
+                    <div class="order-cost-row"><span>Delivery fee</span><span>SRD ${Number(order.deliveryFee || 0).toFixed(2)}</span></div>
+                    <div class="order-cost-row fw-bold"><span>Total</span><span>SRD ${Number(order.totalAmount || 0).toFixed(2)}</span></div>
+                </div>
+            `;
+
+            return itemsHtml + costsHtml;
+        }
+
+        function attachOrderToggles() {
+            document.querySelectorAll('.order-toggle').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const details = document.getElementById(targetId);
+                    if (!details) return;
+                    const expanded = btn.getAttribute('aria-expanded') === 'true';
+                    btn.setAttribute('aria-expanded', String(!expanded));
+                    details.hidden = expanded;
+                });
+            });
+        }
+
+        function attachOrderFilters() {
+            document.querySelectorAll('.order-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentOrderFilter = btn.getAttribute('data-filter');
+                    document.querySelectorAll('.order-filter-btn').forEach(other => {
+                        other.classList.remove('btn-dark', 'active');
+                        other.classList.add('btn-outline-dark');
+                    });
+                    btn.classList.remove('btn-outline-dark');
+                    btn.classList.add('btn-dark', 'active');
+                    renderOrders();
+                });
+            });
+        }
+
+        function attachCancelButtons() {
+            document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('Weet je zeker dat je deze order wilt annuleren?')) return;
+                    await updateStatus(btn.getAttribute('data-order-id'), 'CANCELLED');
+                });
+            });
+        }
 
         async function init() {
             const raw = localStorage.getItem('he_user');
@@ -164,6 +260,7 @@
 
             document.getElementById('dashboardSearch').addEventListener('input', filterStock);
             document.getElementById('addItemForm').addEventListener('submit', addProduct);
+            attachOrderFilters();
         }
 
         async function refreshData() {
@@ -229,7 +326,16 @@
                 method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer '+tkn},
                 body: JSON.stringify(body)
             });
-            if(res.ok) { bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide(); refreshData(); }
+            if(res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide();
+                document.getElementById('addItemForm').reset();
+                document.getElementById('addQty').value = 0;
+                await refreshData();
+                alert('Nieuw item toegevoegd.');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || 'Toevoegen mislukt.');
+            }
         }
 
         async function saveStock(productId) {
@@ -245,37 +351,82 @@
         async function deleteProduct(id) {
             if(!confirm('Verwijderen?')) return;
             const tkn = localStorage.getItem('he_token');
-            await fetch(`http://localhost:4000/api/products/${id}`, {
+            const res = await fetch(`http://localhost:4000/api/products/${id}`, {
                 method: 'DELETE', headers: {'Authorization': 'Bearer '+tkn}
             });
-            refreshData();
+            if (res.ok) {
+                await refreshData();
+                alert('Item verwijderd.');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || 'Verwijderen mislukt.');
+            }
         }
 
         async function loadOrders() {
             const tkn = localStorage.getItem('he_token');
             const res = await fetch(`http://localhost:4000/api/pharmacies/${currentPharmacyId}/orders`, { headers: {'Authorization': 'Bearer '+tkn}});
-            const orders = await res.json();
+            allOrders = await res.json();
+            renderOrders();
+        }
+
+        function getActionButtons(order) {
+            const buttons = [];
+            if (order.deliveryMethod === 'Delivery') {
+                buttons.push(`<button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="updateStatus(${order.id}, 'READY_FOR_DELIVERY')">Ready for Delivery</button>`);
+                buttons.push(`<button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="updateStatus(${order.id}, 'ON_ITS_WAY')">On Its Way</button>`);
+            } else {
+                buttons.push(`<button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="updateStatus(${order.id}, 'READY_FOR_PICKUP')">Ready for Pickup</button>`);
+            }
+            buttons.push(`<button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="updateStatus(${order.id}, 'DELIVERED')">Delivered</button>`);
+            if (order.status !== 'CANCELLED' && order.status !== 'DELIVERED') {
+                buttons.push(`<button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 cancel-order-btn" data-order-id="${order.id}">Cancel</button>`);
+            }
+            return buttons.join('');
+        }
+
+        function renderOrders() {
             const container = document.getElementById('ordersManage');
-            container.innerHTML = orders.reverse().map(o => {
+            const orders = currentOrderFilter === 'ALL'
+                ? allOrders
+                : allOrders.filter(order => order.status === currentOrderFilter);
+
+            if (!orders.length) {
+                container.innerHTML = '<p class="small text-muted mb-0">Geen orders gevonden voor deze filter.</p>';
+                return;
+            }
+
+            container.innerHTML = orders.map(o => {
                 const deliveryBtn = o.deliveryMethod === 'Delivery' 
                     ? `<button class="btn btn-sm btn-warning text-dark rounded-pill px-3" onclick='viewDeliveryDetails(${JSON.stringify(o)})'>
                         <i class="bi bi-geo-alt me-1"></i> Details
                        </button>` 
                     : '';
+                const detailsId = `order-details-${o.id}`;
+                const statusClass = `status-${String(o.status || '').toLowerCase().replace(/_/g, '-')}`;
 
                 return `
                 <div class="order-card shadow-sm">
-                    <div class="d-flex justify-content-between"><strong>${o.customerName}</strong><span class="status-badge">${o.status}</span></div>
+                    <div class="d-flex justify-content-between"><strong>${o.customerName}</strong><span class="status-badge ${statusClass}">${formatStatusLabel(o.status)}</span></div>
                     <div class="small text-muted mb-2">Order #${o.id} (${o.deliveryMethod})</div>
+                    <button type="button" class="order-toggle" data-target="${detailsId}" aria-expanded="false">
+                        <span>Bekijk details</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div id="${detailsId}" hidden>
+                        ${renderOrderDetails(o)}
+                    </div>
                     <div class="d-flex flex-wrap gap-2">
                         <button class="btn btn-sm btn-info text-white rounded-pill px-3" onclick='viewDocs(${JSON.stringify(o)})'>
                             <i class="bi bi-eye me-1"></i> Docs
                         </button>
                         ${deliveryBtn}
-                        <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="updateStatus(${o.id}, 'READY')">READY</button>
+                        ${getActionButtons(o)}
                     </div>
                 </div>
             `}).join('');
+            attachOrderToggles();
+            attachCancelButtons();
         }
 
         function viewDocs(order) {
@@ -329,11 +480,16 @@
 
         async function updateStatus(id, status) {
             const tkn = localStorage.getItem('he_token');
-            await fetch(`http://localhost:4000/api/orders/${id}/status`, {
+            const res = await fetch(`http://localhost:4000/api/orders/${id}/status`, {
                 method: 'PATCH', headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer '+tkn},
                 body: JSON.stringify({ status })
             });
-            loadOrders();
+            if (res.ok) {
+                await loadOrders();
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || 'Status update mislukt.');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', init);

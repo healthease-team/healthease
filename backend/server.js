@@ -12,6 +12,16 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_key';
+const ALLOWED_ORDER_STATUSES = [
+  'PENDING',
+  'PROCESSING',
+  'READY',
+  'READY_FOR_DELIVERY',
+  'ON_ITS_WAY',
+  'READY_FOR_PICKUP',
+  'DELIVERED',
+  'CANCELLED'
+];
 
 app.use(cors());
 app.use(express.json());
@@ -71,6 +81,77 @@ app.get('/api/products', async (req, res) => {
   } catch (err) {
     console.error('Error fetching products', err);
     res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+// Create a product and optionally attach stock for a pharmacy
+app.post('/api/products', authenticateToken, requireRole('PHARMACY'), async (req, res) => {
+  const { name, price, category, quantity, pharmacyId } = req.body || {};
+  const priceNumber = Number(price);
+  const quantityNumber = Number(quantity ?? 0);
+  const pharmacyIdNumber = Number(pharmacyId);
+
+  if (!name || Number.isNaN(priceNumber) || !category) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    if (req.user.role === 'PHARMACY') {
+      const user = await prisma.user.findUnique({ where: { id: Number(req.user.id) } });
+      if (user?.email && !Number.isNaN(pharmacyIdNumber)) {
+        const pharmacy = await prisma.pharmacy.findUnique({ where: { email: user.email } });
+        if (pharmacy && pharmacy.id !== pharmacyIdNumber) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+      }
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name: String(name).trim(),
+        description: `Productomschrijving voor ${String(name).trim()}.`,
+        price: priceNumber,
+        category: String(category).trim(),
+        imageUrl: 'images/shop_all_cat.png'
+      }
+    });
+
+    if (!Number.isNaN(pharmacyIdNumber)) {
+      await prisma.stock.create({
+        data: {
+          pharmacyId: pharmacyIdNumber,
+          productId: product.id,
+          quantity: Number.isNaN(quantityNumber) ? 0 : quantityNumber
+        }
+      });
+    }
+
+    res.status(201).json(product);
+  } catch (err) {
+    console.error('Error creating product', err);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+// Delete a product and its stock entries
+app.delete('/api/products/:id', authenticateToken, requireRole('PHARMACY'), async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: 'Invalid product id' });
+  }
+
+  try {
+    await prisma.orderItem.updateMany({
+      where: { productId: id },
+      data: { productId: null }
+    });
+
+    await prisma.stock.deleteMany({ where: { productId: id } });
+    await prisma.product.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error deleting product', err);
+    res.status(500).json({ error: 'Failed to delete product' });
   }
 });
 
@@ -242,7 +323,7 @@ app.get('/api/pharmacies', async (req, res) => {
 });
 
 // Pharmacy dashboard: stock for a pharmacy
-app.get('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
+app.get('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY'), async (req, res) => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid pharmacy id' });
@@ -268,7 +349,7 @@ app.get('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY', 
 });
 
 // Pharmacy dashboard: orders for a pharmacy
-app.get('/api/pharmacies/:id/orders', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
+app.get('/api/pharmacies/:id/orders', authenticateToken, requireRole('PHARMACY'), async (req, res) => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid pharmacy id' });
@@ -284,26 +365,13 @@ app.get('/api/pharmacies/:id/orders', authenticateToken, requireRole('PHARMACY',
     }
     const orders = await prisma.order.findMany({
       where: { pharmacyId: id },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      include: { items: true }
     });
     res.json(orders);
   } catch (err) {
     console.error('Error fetching pharmacy orders', err);
     res.status(500).json({ error: 'Failed to fetch pharmacy orders' });
-  }
-});
-
-// Admin: list all orders
-app.get('/api/orders', authenticateToken, requireRole('ADMIN'), async (req, res) => {
-  try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: { pharmacy: true }
-    });
-    res.json(orders);
-  } catch (err) {
-    console.error('Error fetching orders', err);
-    res.status(500).json({ error: 'Failed to fetch orders' });
   }
 });
 
@@ -313,15 +381,15 @@ app.get('/api/users/:id/orders', authenticateToken, async (req, res) => {
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'Invalid user id' });
   }
-  // Only allow the user themselves or admin to access orders
-  if (req.user.role !== 'ADMIN' && Number(req.user.id) !== id) {
+  // Only allow the user themselves to access orders
+  if (Number(req.user.id) !== id) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   try {
     const orders = await prisma.order.findMany({
       where: { userId: id },
       orderBy: { createdAt: 'desc' },
-      include: { pharmacy: true }
+      include: { pharmacy: true, items: true }
     });
     res.json(orders);
   } catch (err) {
@@ -330,15 +398,37 @@ app.get('/api/users/:id/orders', authenticateToken, async (req, res) => {
   }
 });
 
-// Allow pharmacies or admin to update order status
+// Allow customers to cancel their own orders and pharmacies to manage their own orders
 app.patch('/api/orders/:id/status', authenticateToken, async (req, res) => {
   const id = Number(req.params.id);
-  const { status } = req.body;
+  const status = String(req.body?.status || '').toUpperCase();
   if (Number.isNaN(id) || !status) return res.status(400).json({ error: 'Invalid data' });
-  if (req.user.role !== 'PHARMACY' && req.user.role !== 'ADMIN') {
-    return res.status(403).json({ error: 'Forbidden' });
+  if (!ALLOWED_ORDER_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
   }
   try {
+    const existingOrder = await prisma.order.findUnique({ where: { id } });
+    if (!existingOrder) return res.status(404).json({ error: 'Order not found' });
+
+    if (req.user.role === 'CUSTOMER') {
+      if (Number(req.user.id) !== existingOrder.userId || status !== 'CANCELLED') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      if (['DELIVERED', 'CANCELLED'].includes(existingOrder.status)) {
+        return res.status(400).json({ error: 'This order can no longer be cancelled' });
+      }
+    } else if (req.user.role === 'PHARMACY') {
+      const user = await prisma.user.findUnique({ where: { id: Number(req.user.id) } });
+      if (user?.email) {
+        const pharmacy = await prisma.pharmacy.findUnique({ where: { email: user.email } });
+        if (pharmacy && pharmacy.id !== existingOrder.pharmacyId) {
+          return res.status(403).json({ error: 'Forbidden' });
+        }
+      }
+    } else {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
     const order = await prisma.order.update({ where: { id }, data: { status } });
     res.json(order);
   } catch (err) {
@@ -348,7 +438,7 @@ app.patch('/api/orders/:id/status', authenticateToken, async (req, res) => {
 });
 
 // Update stock quantity for one product in a pharmacy
-app.patch('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY', 'ADMIN'), async (req, res) => {
+app.patch('/api/pharmacies/:id/stock', authenticateToken, requireRole('PHARMACY'), async (req, res) => {
   const id = Number(req.params.id);
   const { productId, quantity } = req.body;
   if (Number.isNaN(id) || !productId || typeof quantity !== 'number') {
@@ -423,11 +513,13 @@ app.post(
         pickupTime,
         bagTotal,
         pharmacyId,
+        items,
         customerLat,
         customerLng
       } = req.body;
 
       const bagTotalNumber = Number(bagTotal);
+      let parsedItems = [];
 
       if (
         !customerName ||
@@ -447,6 +539,25 @@ app.post(
         return res
           .status(400)
           .json({ error: 'Prescription and ID card uploads are required' });
+      }
+
+      try {
+        parsedItems = JSON.parse(items || '[]');
+      } catch (err) {
+        return res.status(400).json({ error: 'Invalid order items payload' });
+      }
+
+      const normalizedItems = parsedItems
+        .map((item) => ({
+          productId: Number.isFinite(Number(item.id)) ? Number(item.id) : null,
+          productName: String(item.name || '').trim(),
+          unitPrice: Number(item.price),
+          quantity: Number(item.qty || item.quantity)
+        }))
+        .filter((item) => item.productName && Number.isFinite(item.unitPrice) && Number.isInteger(item.quantity) && item.quantity > 0);
+
+      if (normalizedItems.length === 0) {
+        return res.status(400).json({ error: 'Order must contain at least one item' });
       }
 
       let selectedPharmacy = null;
@@ -494,7 +605,7 @@ app.post(
         email,
         phone,
         deliveryMethod,
-        location: location || null,
+        location: deliveryMethod === 'Delivery' ? (location || null) : null,
         pickupTime: pickupTime || null,
         bagTotal: bagTotalNumber,
         adminFee,
@@ -502,8 +613,8 @@ app.post(
         deliveryFee,
         totalAmount,
         pharmacyId: selectedPharmacy ? selectedPharmacy.id : null,
-        customerLat: customerLat ? Number(customerLat) : null,
-        customerLng: customerLng ? Number(customerLng) : null,
+        customerLat: deliveryMethod === 'Delivery' && customerLat ? Number(customerLat) : null,
+        customerLng: deliveryMethod === 'Delivery' && customerLng ? Number(customerLng) : null,
         distanceKm,
         prescriptionPath: path.join('uploads', prescriptionFile.filename),
         idCardPath: path.join('uploads', idCardFile.filename)
@@ -514,7 +625,20 @@ app.post(
         orderData.userId = Number(req.user.id);
       }
 
-      const order = await prisma.order.create({ data: orderData });
+      const order = await prisma.order.create({
+        data: {
+          ...orderData,
+          items: {
+            create: normalizedItems.map((item) => ({
+              productId: item.productId,
+              productName: item.productName,
+              unitPrice: item.unitPrice,
+              quantity: item.quantity
+            }))
+          }
+        },
+        include: { items: true }
+      });
 
       res.status(201).json(order);
     } catch (err) {
@@ -529,14 +653,14 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Get single order (protected) - user can view their own order, admin can view any
+// Get single order (protected) - user can view their own order
 app.get('/api/orders/:id', authenticateToken, async (req, res) => {
   const id = Number(req.params.id);
   if (Number.isNaN(id)) return res.status(400).json({ error: 'Invalid order id' });
   try {
-    const order = await prisma.order.findUnique({ where: { id }, include: { pharmacy: true } });
+    const order = await prisma.order.findUnique({ where: { id }, include: { pharmacy: true, items: true } });
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    if (req.user.role !== 'ADMIN' && Number(req.user.id) !== order.userId) {
+    if (Number(req.user.id) !== order.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
     res.json(order);
@@ -549,4 +673,3 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
 app.listen(PORT, () => {
   console.log(`HealthEase API running on http://localhost:${PORT}`);
 });
-

@@ -11,13 +11,15 @@ datasource db {
 enum Role {
   CUSTOMER
   PHARMACY
-  ADMIN
 }
 
 enum OrderStatus {
   PENDING
   PROCESSING
   READY
+  READY_FOR_DELIVERY
+  ON_ITS_WAY
+  READY_FOR_PICKUP
   DELIVERED
   CANCELLED
 }
@@ -34,6 +36,7 @@ model Product {
   createdAt   DateTime  @default(now())
 
   stocks      Stock[]
+  orderItems  OrderItem[]
 }
 
 // 2. Bestellingen tabel (gebaseerd op add to cart page.jpg)
@@ -70,6 +73,21 @@ model Order {
   status           OrderStatus @default(PENDING)
   
   createdAt        DateTime @default(now())
+  items            OrderItem[]
+}
+
+model OrderItem {
+  id          Int      @id @default(autoincrement())
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     Int
+
+  product     Product? @relation(fields: [productId], references: [id])
+  productId   Int?
+
+  productName String
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  quantity    Int
+  createdAt   DateTime @default(now())
 }
 
 // 3. Reviews tabel (gebaseerd op testimonials page.jpg)
