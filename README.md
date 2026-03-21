@@ -11,7 +11,7 @@ Built with HTML, CSS, JavaScript, Node.js, Express, Prisma, and MySQL.
 Before you start, make sure you have the following installed:
 
 - Node.js
-- MySQL or MariaDB
+- MySQL 
 - MySQL Workbench for database management
 - Git
 - A simple static server for the frontend, such as the VS Code Live Server extension
