@@ -6,9 +6,6 @@
   "includeExamples": false,
   "tailwind": true,
   "addOnOptions": {
-    "prisma": {
-      "database": "postgres"
-    },
     "drizzle": {
       "database": "postgresql"
     }
@@ -22,7 +19,6 @@
   "chosenAddOns": [
     "biome",
     "nitro",
-    "prisma",
     "drizzle",
     "shadcn",
     "better-auth",
