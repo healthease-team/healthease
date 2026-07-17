@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteEssentialsRouteImport } from './routes/_site/essentials'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SiteRoute = SiteRouteImport.update({
@@ -22,6 +23,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteEssentialsRoute = SiteEssentialsRouteImport.update({
+  id: '/essentials',
+  path: '/essentials',
+  getParentRoute: () => SiteRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -30,24 +36,27 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/essentials': typeof SiteEssentialsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
+  '/essentials': typeof SiteEssentialsRoute
   '/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/_site/essentials': typeof SiteEssentialsRoute
   '/_site/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/auth/$'
+  fullPaths: '/' | '/essentials' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/auth/$'
-  id: '__root__' | '/_site' | '/_site/' | '/api/auth/$'
+  to: '/essentials' | '/' | '/api/auth/$'
+  id: '__root__' | '/_site' | '/_site/essentials' | '/_site/' | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,6 +80,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/essentials': {
+      id: '/_site/essentials'
+      path: '/essentials'
+      fullPath: '/essentials'
+      preLoaderRoute: typeof SiteEssentialsRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -82,10 +98,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface SiteRouteChildren {
+  SiteEssentialsRoute: typeof SiteEssentialsRoute
   SiteIndexRoute: typeof SiteIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteEssentialsRoute: SiteEssentialsRoute,
   SiteIndexRoute: SiteIndexRoute,
 }
 
