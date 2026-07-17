@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
 import { Route as SiteEssentialsRouteImport } from './routes/_site/essentials'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -21,6 +22,11 @@ const SiteRoute = SiteRouteImport.update({
 const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteTestimonialsRoute = SiteTestimonialsRouteImport.update({
+  id: '/testimonials',
+  path: '/testimonials',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteEssentialsRoute = SiteEssentialsRouteImport.update({
@@ -37,10 +43,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/essentials': typeof SiteEssentialsRoute
+  '/testimonials': typeof SiteTestimonialsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/essentials': typeof SiteEssentialsRoute
+  '/testimonials': typeof SiteTestimonialsRoute
   '/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -48,15 +56,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
   '/_site/essentials': typeof SiteEssentialsRoute
+  '/_site/testimonials': typeof SiteTestimonialsRoute
   '/_site/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/essentials' | '/api/auth/$'
+  fullPaths: '/' | '/essentials' | '/testimonials' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/essentials' | '/' | '/api/auth/$'
-  id: '__root__' | '/_site' | '/_site/essentials' | '/_site/' | '/api/auth/$'
+  to: '/essentials' | '/testimonials' | '/' | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/_site'
+    | '/_site/essentials'
+    | '/_site/testimonials'
+    | '/_site/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -80,6 +95,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/testimonials': {
+      id: '/_site/testimonials'
+      path: '/testimonials'
+      fullPath: '/testimonials'
+      preLoaderRoute: typeof SiteTestimonialsRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/essentials': {
       id: '/_site/essentials'
       path: '/essentials'
@@ -99,11 +121,13 @@ declare module '@tanstack/react-router' {
 
 interface SiteRouteChildren {
   SiteEssentialsRoute: typeof SiteEssentialsRoute
+  SiteTestimonialsRoute: typeof SiteTestimonialsRoute
   SiteIndexRoute: typeof SiteIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteEssentialsRoute: SiteEssentialsRoute,
+  SiteTestimonialsRoute: SiteTestimonialsRoute,
   SiteIndexRoute: SiteIndexRoute,
 }
 
