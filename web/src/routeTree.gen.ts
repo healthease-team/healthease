@@ -14,6 +14,7 @@ import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
 import { Route as SiteEssentialsRouteImport } from './routes/_site/essentials'
+import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SiteRoute = SiteRouteImport.update({
@@ -40,6 +41,11 @@ const SiteEssentialsRoute = SiteEssentialsRouteImport.update({
   path: '/essentials',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteContactRoute = SiteContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => SiteRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -48,12 +54,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
   '/shop': typeof SiteShopRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
+  '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
   '/shop': typeof SiteShopRoute
   '/testimonials': typeof SiteTestimonialsRoute
@@ -63,6 +71,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/_site/contact': typeof SiteContactRoute
   '/_site/essentials': typeof SiteEssentialsRoute
   '/_site/shop': typeof SiteShopRoute
   '/_site/testimonials': typeof SiteTestimonialsRoute
@@ -71,12 +80,15 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/essentials' | '/shop' | '/testimonials' | '/api/auth/$'
+  fullPaths:
+    '/' | '/contact' | '/essentials' | '/shop' | '/testimonials' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/essentials' | '/shop' | '/testimonials' | '/' | '/api/auth/$'
+  to:
+    '/contact' | '/essentials' | '/shop' | '/testimonials' | '/' | '/api/auth/$'
   id:
     | '__root__'
     | '/_site'
+    | '/_site/contact'
     | '/_site/essentials'
     | '/_site/shop'
     | '/_site/testimonials'
@@ -126,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteEssentialsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/contact': {
+      id: '/_site/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof SiteContactRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -137,6 +156,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface SiteRouteChildren {
+  SiteContactRoute: typeof SiteContactRoute
   SiteEssentialsRoute: typeof SiteEssentialsRoute
   SiteShopRoute: typeof SiteShopRoute
   SiteTestimonialsRoute: typeof SiteTestimonialsRoute
@@ -144,6 +164,7 @@ interface SiteRouteChildren {
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteContactRoute: SiteContactRoute,
   SiteEssentialsRoute: SiteEssentialsRoute,
   SiteShopRoute: SiteShopRoute,
   SiteTestimonialsRoute: SiteTestimonialsRoute,
