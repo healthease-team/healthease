@@ -13,8 +13,10 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
+import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteEssentialsRouteImport } from './routes/_site/essentials'
 import { Route as SiteContactRouteImport } from './routes/_site/contact'
+import { Route as SiteCheckoutRouteImport } from './routes/_site/checkout'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SiteRoute = SiteRouteImport.update({
@@ -36,6 +38,11 @@ const SiteShopRoute = SiteShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteFaqRoute = SiteFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => SiteRoute,
+} as any)
 const SiteEssentialsRoute = SiteEssentialsRouteImport.update({
   id: '/essentials',
   path: '/essentials',
@@ -46,6 +53,11 @@ const SiteContactRoute = SiteContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => SiteRoute,
 } as any)
+const SiteCheckoutRoute = SiteCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => SiteRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -54,15 +66,19 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
+  '/faq': typeof SiteFaqRoute
   '/shop': typeof SiteShopRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
+  '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
+  '/faq': typeof SiteFaqRoute
   '/shop': typeof SiteShopRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/': typeof SiteIndexRoute
@@ -71,8 +87,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/_site/checkout': typeof SiteCheckoutRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/essentials': typeof SiteEssentialsRoute
+  '/_site/faq': typeof SiteFaqRoute
   '/_site/shop': typeof SiteShopRoute
   '/_site/testimonials': typeof SiteTestimonialsRoute
   '/_site/': typeof SiteIndexRoute
@@ -81,15 +99,31 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/contact' | '/essentials' | '/shop' | '/testimonials' | '/api/auth/$'
+    | '/'
+    | '/checkout'
+    | '/contact'
+    | '/essentials'
+    | '/faq'
+    | '/shop'
+    | '/testimonials'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/contact' | '/essentials' | '/shop' | '/testimonials' | '/' | '/api/auth/$'
+    | '/checkout'
+    | '/contact'
+    | '/essentials'
+    | '/faq'
+    | '/shop'
+    | '/testimonials'
+    | '/'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/_site'
+    | '/_site/checkout'
     | '/_site/contact'
     | '/_site/essentials'
+    | '/_site/faq'
     | '/_site/shop'
     | '/_site/testimonials'
     | '/_site/'
@@ -131,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteShopRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/faq': {
+      id: '/_site/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof SiteFaqRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/_site/essentials': {
       id: '/_site/essentials'
       path: '/essentials'
@@ -145,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteContactRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_site/checkout': {
+      id: '/_site/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof SiteCheckoutRouteImport
+      parentRoute: typeof SiteRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -156,16 +204,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface SiteRouteChildren {
+  SiteCheckoutRoute: typeof SiteCheckoutRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteEssentialsRoute: typeof SiteEssentialsRoute
+  SiteFaqRoute: typeof SiteFaqRoute
   SiteShopRoute: typeof SiteShopRoute
   SiteTestimonialsRoute: typeof SiteTestimonialsRoute
   SiteIndexRoute: typeof SiteIndexRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
+  SiteCheckoutRoute: SiteCheckoutRoute,
   SiteContactRoute: SiteContactRoute,
   SiteEssentialsRoute: SiteEssentialsRoute,
+  SiteFaqRoute: SiteFaqRoute,
   SiteShopRoute: SiteShopRoute,
   SiteTestimonialsRoute: SiteTestimonialsRoute,
   SiteIndexRoute: SiteIndexRoute,
