@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
+import { Route as PharmacyDashboardRouteImport } from './routes/pharmacy.dashboard'
 import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
@@ -28,6 +29,11 @@ const SiteIndexRoute = SiteIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => SiteRoute,
+} as any)
+const PharmacyDashboardRoute = PharmacyDashboardRouteImport.update({
+  id: '/pharmacy/dashboard',
+  path: '/pharmacy/dashboard',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const SiteTestimonialsRoute = SiteTestimonialsRouteImport.update({
   id: '/testimonials',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/shop': typeof SiteShopRoute
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
+  '/pharmacy/dashboard': typeof PharmacyDashboardRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/shop': typeof SiteShopRoute
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
+  '/pharmacy/dashboard': typeof PharmacyDashboardRoute
   '/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/_site/shop': typeof SiteShopRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/testimonials': typeof SiteTestimonialsRoute
+  '/pharmacy/dashboard': typeof PharmacyDashboardRoute
   '/_site/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/terms'
     | '/testimonials'
+    | '/pharmacy/dashboard'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/shop'
     | '/terms'
     | '/testimonials'
+    | '/pharmacy/dashboard'
     | '/'
     | '/api/auth/$'
   id:
@@ -138,12 +149,14 @@ export interface FileRouteTypes {
     | '/_site/shop'
     | '/_site/terms'
     | '/_site/testimonials'
+    | '/pharmacy/dashboard'
     | '/_site/'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  PharmacyDashboardRoute: typeof PharmacyDashboardRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof SiteIndexRouteImport
       parentRoute: typeof SiteRoute
+    }
+    '/pharmacy/dashboard': {
+      id: '/pharmacy/dashboard'
+      path: '/pharmacy/dashboard'
+      fullPath: '/pharmacy/dashboard'
+      preLoaderRoute: typeof PharmacyDashboardRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_site/testimonials': {
       id: '/_site/testimonials'
@@ -248,6 +268,7 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  PharmacyDashboardRoute: PharmacyDashboardRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
