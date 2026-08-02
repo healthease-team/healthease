@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as PharmacyDashboardRouteImport } from './routes/pharmacy.dashboard'
@@ -21,6 +22,11 @@ import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteCheckoutRouteImport } from './routes/_site/checkout'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
   getParentRoute: () => rootRouteImport,
@@ -78,6 +84,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
+  '/account': typeof AccountRoute
   '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
+  '/account': typeof AccountRoute
   '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
@@ -103,6 +111,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_site': typeof SiteRouteWithChildren
+  '/account': typeof AccountRoute
   '/_site/checkout': typeof SiteCheckoutRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/essentials': typeof SiteEssentialsRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/checkout'
     | '/contact'
     | '/essentials'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/account'
     | '/checkout'
     | '/contact'
     | '/essentials'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_site'
+    | '/account'
     | '/_site/checkout'
     | '/_site/contact'
     | '/_site/essentials'
@@ -156,12 +168,20 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SiteRoute: typeof SiteRouteWithChildren
+  AccountRoute: typeof AccountRoute
   PharmacyDashboardRoute: typeof PharmacyDashboardRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_site': {
       id: '/_site'
       path: ''
@@ -268,6 +288,7 @@ const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   SiteRoute: SiteRouteWithChildren,
+  AccountRoute: AccountRoute,
   PharmacyDashboardRoute: PharmacyDashboardRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
