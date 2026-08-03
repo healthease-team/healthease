@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import AdminHeader from '#/components/AdminHeader'
-import { messages as mockMessages } from '#/lib/mock-data'
+import StatusBadge from '#/components/ui/StatusBadge'
+import { messages as mockMessages, orders, pharmacies, products } from '#/lib/mock-data'
 import { useToast } from '#/lib/toast-context'
 import type { Message } from '#/lib/types'
 
@@ -104,6 +105,55 @@ function AdminPage() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Cross-pharmacy oversight */}
+          <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-5">
+            <h2 className="text-lg font-bold text-brand-navy mb-4">Cross-Pharmacy Overview</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="text-text-muted-2 border-b border-brand-navy/10">
+                    <th className="py-2 pr-4">Pharmacy</th>
+                    <th className="py-2 pr-4">Address</th>
+                    <th className="py-2 pr-4">Orders</th>
+                    <th className="py-2 pr-4">Revenue (SRD)</th>
+                    <th className="py-2">Products Listed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pharmacies.map((pharmacy) => {
+                    const pharmacyOrders = orders.filter((o) => o.pharmacyId === pharmacy.id)
+                    const revenue = pharmacyOrders.reduce((sum, o) => sum + (o.paymentStatus === 'paid' ? o.totalAmount : 0), 0)
+                    return (
+                      <tr key={pharmacy.id} className="border-b border-brand-navy/5">
+                        <td className="py-2 pr-4 font-medium text-brand-navy">{pharmacy.name}</td>
+                        <td className="py-2 pr-4 text-text-muted">{pharmacy.address}</td>
+                        <td className="py-2 pr-4 text-text-muted">{pharmacyOrders.length}</td>
+                        <td className="py-2 pr-4 text-text-muted">{revenue.toFixed(2)}</td>
+                        <td className="py-2 text-text-muted">{products.length}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Recent orders across all pharmacies */}
+          <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-5">
+            <h2 className="text-lg font-bold text-brand-navy mb-4">All Orders</h2>
+            <div className="space-y-2">
+              {orders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between border-b border-brand-navy/5 py-2 last:border-0">
+                  <div>
+                    <span className="text-sm font-medium text-brand-navy">Order #{order.id}</span>
+                    <span className="text-xs text-text-muted-2 ml-2">{order.customerName}</span>
+                  </div>
+                  <StatusBadge status={order.status} />
+                </div>
+              ))}
             </div>
           </div>
         </div>
