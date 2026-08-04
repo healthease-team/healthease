@@ -11,3 +11,10 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+
+# Omgevingsvariabelen (nooit pushen!)
+.env
+.env.local
+
+# Gegenereerde Prisma client
+/src/generated/prisma
