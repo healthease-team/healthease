@@ -16,6 +16,7 @@ export default function AdminHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-3">
+          <span className="text-sm text-white/80 hidden sm:inline">Pharmacy account</span>
           <ThemeToggle className="!text-white hover:!bg-white/10" />
           <button className="text-white/70 hover:text-white text-sm font-medium" onClick={() => navigate({ to: '/login' })}>
             Logout

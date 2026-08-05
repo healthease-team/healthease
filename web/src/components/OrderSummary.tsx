@@ -11,7 +11,8 @@ export default function OrderSummary({
   const { items, updateQuantity, removeItem, clearCart, bagTotal } = useCart()
 
   const fee = deliveryMethod === 'delivery' && distanceKm !== null ? deliveryFee(distanceKm) : 0
-  const total = bagTotal + ADMIN_FEE + PLATFORM_FEE + fee
+  const vat = (bagTotal + ADMIN_FEE + PLATFORM_FEE + fee) * 0.1
+  const total = bagTotal + ADMIN_FEE + PLATFORM_FEE + fee + vat
 
   return (
     <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-5">
@@ -75,6 +76,10 @@ export default function OrderSummary({
             <span>{distanceKm !== null ? `SRD ${fee.toFixed(2)}` : 'Set your location'}</span>
           </div>
         )}
+        <div className="flex justify-between text-text-muted">
+          <span>VAT (10%)</span>
+          <span>SRD {vat.toFixed(2)}</span>
+        </div>
         <div className="flex justify-between text-brand-navy font-bold text-base pt-2 border-t border-brand-navy/10">
           <span>Total</span>
           <span>SRD {total.toFixed(2)}</span>

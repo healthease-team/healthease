@@ -3,6 +3,7 @@ import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
 import AuthCard from '#/components/AuthCard'
 import Button from '#/components/ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
+import { setCustomerSession } from '#/lib/customer-auth'
 
 export const Route = createFileRoute('/_auth/login')({ component: LoginPage })
 
@@ -17,6 +18,7 @@ function LoginPage() {
     setLoading(true)
     setTimeout(() => {
       setLoading(false)
+      setCustomerSession({ name: 'Denver', email, phone: '+597 123 4567' })
       navigate({ to: '/account' })
     }, 600)
   }

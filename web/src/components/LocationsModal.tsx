@@ -19,13 +19,13 @@ export default function LocationsModal() {
         {locations.map((location) => (
           <div
             key={location.name}
-            className="bg-surface rounded-2xl border border-brand-navy/10 shadow-card overflow-hidden hover:shadow-card-hover transition-shadow flex flex-col"
+            className="bg-surface rounded-xl border border-brand-navy/10 shadow-sm flex flex-col"
           >
-            <div className="bg-gradient-to-br from-mint to-mint-light h-24 flex items-center justify-center">
-              <i className="bi bi-hospital text-4xl text-brand-navy" />
+            <div className="bg-mint-light/60 h-20 flex items-center justify-center rounded-t-xl">
+              <i className="bi bi-hospital text-3xl text-brand-navy" />
             </div>
             <div className="p-4 flex flex-col gap-2 flex-1">
-              <div className="font-bold text-brand-navy leading-snug">{location.name}</div>
+              <div className="font-semibold text-brand-navy leading-snug">{location.name}</div>
               <div className="flex items-start gap-2 text-sm text-text-muted">
                 <i className="bi bi-geo-alt mt-0.5 shrink-0" />
                 <span>{location.address}</span>
@@ -41,7 +41,7 @@ export default function LocationsModal() {
                 href={`https://www.google.com/maps?q=${location.lat},${location.lng}`}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-auto pt-2 inline-flex items-center justify-center gap-2 rounded-full border-2 border-brand-navy text-brand-navy text-sm font-semibold py-2 hover:bg-mint-light transition-colors"
+                className="mt-auto pt-2 inline-flex items-center gap-2 text-sm text-brand-navy hover:text-accent-blue"
               >
                 <i className="bi bi-map" /> Get Directions
               </a>

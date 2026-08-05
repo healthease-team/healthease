@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/shop', label: 'Shop' },
   { href: '/essentials', label: 'Essentials' },
-  { href: '/testimonials', label: 'Testimonials' },
   { href: '/contact', label: 'Contact' },
 ] as const
 
@@ -46,7 +45,7 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Button variant="secondary" onClick={openLocations}>
+            <Button variant="outline" className="!rounded-lg !px-4 !py-2" onClick={openLocations}>
               Locations
             </Button>
             <Link to="/checkout" className="relative text-brand-navy hover:text-link-blue transition-colors">
@@ -122,8 +121,8 @@ export default function Navbar() {
               Login / Register
             </Link>
             <Button
-              variant="secondary"
-              className="mt-2"
+              variant="outline"
+              className="mt-2 !rounded-lg"
               onClick={() => {
                 openLocations()
                 setIsMenuOpen(false)

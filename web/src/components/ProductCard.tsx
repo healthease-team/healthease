@@ -6,16 +6,13 @@ interface ProductCardProps {
   price?: number
   categoryName?: string
   onAddToCart?: () => void
-  onViewDetails?: () => void
+  detailHref?: string
 }
 
-export default function ProductCard({ name, image, price, categoryName, onAddToCart, onViewDetails }: ProductCardProps) {
+export default function ProductCard({ name, image, price, categoryName, onAddToCart, detailHref }: ProductCardProps) {
   return (
     <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-4 hover:shadow-card-hover hover:-translate-y-1 transition-all">
-      <div
-        className={`relative h-32 w-full mb-3 ${onViewDetails ? 'cursor-pointer' : ''}`}
-        onClick={onViewDetails}
-      >
+      <div className={`relative h-32 w-full mb-3 ${detailHref ? 'cursor-pointer' : ''}`}>
         <img
           src={image}
           alt={name}
@@ -29,10 +26,10 @@ export default function ProductCard({ name, image, price, categoryName, onAddToC
       {price !== undefined && (
         <div className="text-accent-blue font-bold text-sm md:text-base mt-1">SRD {price}</div>
       )}
-      {(onAddToCart || onViewDetails) && (
+      {(onAddToCart || detailHref) && (
         <div className="flex gap-2 mt-3">
-          {onViewDetails && (
-            <Button variant="outline" className="!px-3 !py-1.5 text-xs flex-1" onClick={onViewDetails}>
+          {detailHref && (
+            <Button variant="outline" className="!px-3 !py-1.5 text-xs flex-1" href={detailHref}>
               Details
             </Button>
           )}

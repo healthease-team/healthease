@@ -16,15 +16,15 @@ export default function AccountHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-4">
+          <Link to="/shop" className="text-sm font-semibold text-link-blue hover:underline">Back to shop</Link>
           <span className="text-brand-navy text-sm hidden sm:inline">
-            Welcome back, <span className="font-semibold">Denver</span>
+            Customer account · <span className="font-semibold">Denver</span>
           </span>
           <ThemeToggle />
           <button
             className="text-text-muted-2 hover:text-brand-navy text-sm font-medium"
             onClick={() => navigate({ to: '/login' })}
           >
-            {/* TODO(phase-2): Supabase Auth sign-out */}
             Logout
           </button>
         </div>

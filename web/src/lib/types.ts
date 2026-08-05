@@ -31,6 +31,10 @@ export interface Product {
   categoryId: string
   subCategory?: EssentialsTag
   imageUrl: string
+  ingredients?: string[]
+  dosage?: string
+  usage?: string
+  conditions?: string[]
 }
 
 export interface StockEntry {

@@ -24,6 +24,7 @@ import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteCheckoutRouteImport } from './routes/_site/checkout'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as SiteProductsProductIdRouteImport } from './routes/_site/products/$productId'
 
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
@@ -98,6 +99,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SiteProductsProductIdRoute = SiteProductsProductIdRouteImport.update({
+  id: '/products/$productId',
+  path: '/products/$productId',
+  getParentRoute: () => SiteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
+  '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
+  '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/_site/testimonials': typeof SiteTestimonialsRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
   '/_site/': typeof SiteIndexRoute
+  '/_site/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/testimonials'
     | '/pharmacy/dashboard'
+    | '/products/$productId'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/testimonials'
     | '/pharmacy/dashboard'
+    | '/products/$productId'
     | '/api/auth/$'
   id:
     | '__root__'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/_site/testimonials'
     | '/pharmacy/dashboard'
     | '/_site/'
+    | '/_site/products/$productId'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
@@ -313,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_site/products/$productId': {
+      id: '/_site/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/products/$productId'
+      preLoaderRoute: typeof SiteProductsProductIdRouteImport
+      parentRoute: typeof SiteRoute
+    }
   }
 }
 
@@ -335,6 +354,7 @@ interface SiteRouteChildren {
   SiteTermsRoute: typeof SiteTermsRoute
   SiteTestimonialsRoute: typeof SiteTestimonialsRoute
   SiteIndexRoute: typeof SiteIndexRoute
+  SiteProductsProductIdRoute: typeof SiteProductsProductIdRoute
 }
 
 const SiteRouteChildren: SiteRouteChildren = {
@@ -346,6 +366,7 @@ const SiteRouteChildren: SiteRouteChildren = {
   SiteTermsRoute: SiteTermsRoute,
   SiteTestimonialsRoute: SiteTestimonialsRoute,
   SiteIndexRoute: SiteIndexRoute,
+  SiteProductsProductIdRoute: SiteProductsProductIdRoute,
 }
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)

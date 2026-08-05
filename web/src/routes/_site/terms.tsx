@@ -3,23 +3,23 @@ import { createFileRoute } from '@tanstack/react-router'
 const sections = [
   {
     title: '1. Orders',
-    body: 'By placing an order on HealthEase, you confirm that all information provided, including prescription and identification documents, is accurate and belongs to you or the person you are ordering for.',
+    body: 'By placing an order through HealthEase, you confirm that the information you provide is accurate, complete, and authorised for the person receiving the order. Prescription and identification documents are required for applicable orders and will be reviewed by the selected pharmacy.',
   },
   {
-    title: '2. Delivery',
-    body: 'Delivery is available within 15km of the fulfilling pharmacy. Delivery fees are calculated based on distance and displayed before checkout. Pickup orders must be collected within the selected time window.',
+    title: '2. Delivery and pickup',
+    body: 'Delivery is available within the service range of the selected pharmacy and fees are calculated before checkout. Pickup orders should be collected from the pharmacy as soon as possible after confirmation, and delays may occur during busy periods.',
   },
   {
-    title: '3. Privacy',
-    body: 'Your prescription and ID documents are used solely to verify and fulfill your order, and are only accessible to you and the fulfilling pharmacy.',
+    title: '3. Privacy and safety',
+    body: 'Your personal information, prescription details, and identification documents are handled with care and used only to process and verify your order. We do not share them with third parties except the fulfilment pharmacy and authorised service providers.',
   },
   {
-    title: '4. Returns',
-    body: 'Due to the nature of pharmaceutical products, items cannot be returned once delivered or picked up, except in the case of a fulfillment error on our part.',
+    title: '4. Returns and refunds',
+    body: 'Because many items are health-related, returns are generally not possible once an order has been fulfilled. If an error occurs on our side or the wrong product is delivered, please contact us as soon as possible so we can help resolve it.',
   },
   {
     title: '5. Contact',
-    body: 'For any questions about these terms, please reach out via our Contact page and our team will respond promptly.',
+    body: 'If you have questions about your order, delivery, or these terms, please contact us through the Contact page and our team will assist you promptly.',
   },
 ]
 

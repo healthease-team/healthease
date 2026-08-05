@@ -2,7 +2,8 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import Hero from '#/components/Hero'
 import ProductCard from '#/components/ProductCard'
 import CategoryCard from '#/components/CategoryCard'
-import { products, categories, mustHaveProductIds } from '#/lib/mock-data'
+import ReviewCard from '#/components/ReviewCard'
+import { products, categories, mustHaveProductIds, reviews } from '#/lib/mock-data'
 
 export const Route = createFileRoute('/_site/')({ component: Home })
 
@@ -41,7 +42,7 @@ function Home() {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${i * 80}ms` }}
               >
-                <ProductCard name={product.name} image={product.imageUrl} price={product.price} />
+                <ProductCard name={product.name} image={product.imageUrl} price={product.price} detailHref={`/products/${product.id}`} />
               </div>
             ))}
           </div>
@@ -50,6 +51,21 @@ function Home() {
             <Link to="/essentials" className="text-link-blue hover:underline inline-flex items-center gap-1">
               View All <span className="bi bi-arrow-right"></span>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="py-8 sm:py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-6">
+            <h2 className="text-brand-navy font-bold text-left text-2xl md:text-3xl">Reviews</h2>
+            <p className="text-text-muted text-left">Real experiences from customers who trust HealthEase for everyday care.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {reviews.slice(0, 6).map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
           </div>
         </div>
       </section>
