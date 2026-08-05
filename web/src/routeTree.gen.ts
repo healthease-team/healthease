@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as SiteRouteImport } from './routes/_site'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as SiteIndexRouteImport } from './routes/_site/index'
 import { Route as PharmacyDashboardRouteImport } from './routes/pharmacy.dashboard'
 import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
@@ -21,6 +22,7 @@ import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteEssentialsRouteImport } from './routes/_site/essentials'
 import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteCheckoutRouteImport } from './routes/_site/checkout'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const AdminRoute = AdminRouteImport.update({
@@ -35,6 +37,10 @@ const AccountRoute = AccountRouteImport.update({
 } as any)
 const SiteRoute = SiteRouteImport.update({
   id: '/_site',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SiteIndexRoute = SiteIndexRouteImport.update({
@@ -82,6 +88,11 @@ const SiteCheckoutRoute = SiteCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => SiteRoute,
 } as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -92,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/login': typeof AuthLoginRoute
   '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
@@ -103,8 +115,10 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof SiteIndexRoute
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/login': typeof AuthLoginRoute
   '/checkout': typeof SiteCheckoutRoute
   '/contact': typeof SiteContactRoute
   '/essentials': typeof SiteEssentialsRoute
@@ -113,14 +127,15 @@ export interface FileRoutesByTo {
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
-  '/': typeof SiteIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteWithChildren
   '/_site': typeof SiteRouteWithChildren
   '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
+  '/_auth/login': typeof AuthLoginRoute
   '/_site/checkout': typeof SiteCheckoutRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/essentials': typeof SiteEssentialsRoute
@@ -138,6 +153,7 @@ export interface FileRouteTypes {
     | '/'
     | '/account'
     | '/admin'
+    | '/login'
     | '/checkout'
     | '/contact'
     | '/essentials'
@@ -149,8 +165,10 @@ export interface FileRouteTypes {
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/account'
     | '/admin'
+    | '/login'
     | '/checkout'
     | '/contact'
     | '/essentials'
@@ -159,13 +177,14 @@ export interface FileRouteTypes {
     | '/terms'
     | '/testimonials'
     | '/pharmacy/dashboard'
-    | '/'
     | '/api/auth/$'
   id:
     | '__root__'
+    | '/_auth'
     | '/_site'
     | '/account'
     | '/admin'
+    | '/_auth/login'
     | '/_site/checkout'
     | '/_site/contact'
     | '/_site/essentials'
@@ -179,6 +198,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRoute: typeof AuthRouteWithChildren
   SiteRoute: typeof SiteRouteWithChildren
   AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
@@ -207,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof SiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_site/': {
@@ -272,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteCheckoutRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -281,6 +315,16 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface SiteRouteChildren {
   SiteCheckoutRoute: typeof SiteCheckoutRoute
@@ -307,6 +351,7 @@ const SiteRouteChildren: SiteRouteChildren = {
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRoute: AuthRouteWithChildren,
   SiteRoute: SiteRouteWithChildren,
   AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
