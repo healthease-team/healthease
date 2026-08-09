@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { saveReview, getProductReviews } from '#/lib/api/reviews'
+import { requireSession } from '#/lib/auth'
 
 export const Route = createFileRoute('/api/db/reviews')({
   server: {
@@ -14,9 +15,12 @@ export const Route = createFileRoute('/api/db/reviews')({
         return Response.json(reviews)
       },
       POST: async ({ request }) => {
-        const body = await request.json()
-        const review = await saveReview(body)
-        return Response.json(review)
+        try {
+          const user = await requireSession(request, 'customer')
+          const body = await request.json()
+          const review = await saveReview({ ...body, userEmail: user.email, userName: user.name })
+          return Response.json(review)
+        } catch (error) { return error instanceof Response ? error : Response.json({ error: 'Unable to save review' }, { status: 500 }) }
       },
     },
   },

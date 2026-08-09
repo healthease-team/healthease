@@ -3,7 +3,8 @@ import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
 import AuthCard from '#/components/AuthCard'
 import Button from '#/components/ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
-import { signInUser, type AppRole } from '#/lib/customer-auth'
+import { setCustomerSession, type AppRole } from '#/lib/customer-auth'
+import { authClient } from '#/lib/auth-client'
 
 export const Route = createFileRoute('/_auth/login')({ component: LoginPage })
 
@@ -14,16 +15,24 @@ function LoginPage() {
   const [role, setRole] = useState<AppRole>('customer')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
 
-    const session = signInUser(email, password, role)
-    if (!session) {
-      window.alert('Invalid credentials for the selected role')
+    const result = await authClient.signIn.email({ email, password })
+    if (result.error || !result.data?.user) {
+      window.alert(result.error?.message ?? 'Invalid email or password')
       setLoading(false)
       return
     }
+    const user = result.data.user as typeof result.data.user & { role?: AppRole }
+    if ((user.role ?? 'customer') !== role) {
+      await authClient.signOut()
+      window.alert('This account does not have the selected role')
+      setLoading(false)
+      return
+    }
+    setCustomerSession({ id: user.id, name: user.name ?? 'Customer', email: user.email, phone: '+597 000 0000', role: user.role ?? 'customer' })
 
     if (role === 'pharmacy') {
       navigate({ to: '/pharmacy/dashboard' })

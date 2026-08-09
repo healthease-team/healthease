@@ -3,7 +3,8 @@ import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
 import AuthCard from '#/components/AuthCard'
 import Button from '#/components/ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
-import { registerUser, type AppRole } from '#/lib/customer-auth'
+import { setCustomerSession, type AppRole } from '#/lib/customer-auth'
+import { authClient } from '#/lib/auth-client'
 
 export const Route = createFileRoute('/_auth/register')({ component: RegisterPage })
 
@@ -15,17 +16,18 @@ function RegisterPage() {
   const [role, setRole] = useState<AppRole>('customer')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
 
-    try {
-      registerUser({ id: email, name, email, phone: '+597 000 0000', role, password })
-    } catch (error) {
-      window.alert(error instanceof Error ? error.message : 'Unable to create account')
+    const result = await authClient.signUp.email({ email, password, name, role })
+    if (result.error || !result.data?.user) {
+      window.alert(result.error?.message ?? 'Unable to create account')
       setLoading(false)
       return
     }
+    const user = result.data.user as typeof result.data.user & { role?: AppRole }
+    setCustomerSession({ id: user.id, name: user.name ?? name, email: user.email, phone: '+597 000 0000', role: user.role ?? role })
 
     if (role === 'pharmacy') {
       navigate({ to: '/pharmacy/dashboard' })

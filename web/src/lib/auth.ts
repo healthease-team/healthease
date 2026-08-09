@@ -23,3 +23,11 @@ export const auth = betterAuth({
   },
   plugins: [tanstackStartCookies()],
 })
+
+export async function requireSession(request: Request, requiredRole?: 'customer' | 'pharmacy' | 'admin') {
+  const session = await auth.api.getSession({ headers: request.headers })
+  if (!session?.user) throw new Response('Authentication required', { status: 401 })
+  const role = (session.user as { role?: string }).role
+  if (requiredRole && role !== requiredRole) throw new Response('Not authorised', { status: 403 })
+  return { id: session.user.id, email: session.user.email, name: session.user.name ?? '', role }
+}

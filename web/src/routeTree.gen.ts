@@ -27,6 +27,7 @@ import { Route as PharmacyDashboardRouteImport } from './routes/pharmacy.dashboa
 import { Route as SiteProductsProductIdRouteImport } from './routes/_site/products/$productId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiDbMessagesRouteImport } from './routes/api/db/messages'
+import { Route as ApiDbNotificationsRouteImport } from './routes/api/db/notifications'
 import { Route as ApiDbOrdersRouteImport } from './routes/api/db/orders'
 import { Route as ApiDbProductsRouteImport } from './routes/api/db/products'
 import { Route as ApiDbReviewsRouteImport } from './routes/api/db/reviews'
@@ -119,6 +120,11 @@ const ApiDbMessagesRoute = ApiDbMessagesRouteImport.update({
   path: '/api/db/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDbNotificationsRoute = ApiDbNotificationsRouteImport.update({
+  id: '/api/db/notifications',
+  path: '/api/db/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDbOrdersRoute = ApiDbOrdersRouteImport.update({
   id: '/api/db/orders',
   path: '/api/db/orders',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
+  '/api/db/notifications': typeof ApiDbNotificationsRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
+  '/api/db/notifications': typeof ApiDbNotificationsRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/_site/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
+  '/api/db/notifications': typeof ApiDbNotificationsRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
+    | '/api/db/notifications'
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
+    | '/api/db/notifications'
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/_site/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
+    | '/api/db/notifications'
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
@@ -277,6 +289,7 @@ export interface RootRouteChildren {
   PharmacyDashboardRoute: typeof PharmacyDashboardRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiDbMessagesRoute: typeof ApiDbMessagesRoute
+  ApiDbNotificationsRoute: typeof ApiDbNotificationsRoute
   ApiDbOrdersRoute: typeof ApiDbOrdersRoute
   ApiDbProductsRoute: typeof ApiDbProductsRoute
   ApiDbReviewsRoute: typeof ApiDbReviewsRoute
@@ -410,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDbMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/db/notifications': {
+      id: '/api/db/notifications'
+      path: '/api/db/notifications'
+      fullPath: '/api/db/notifications'
+      preLoaderRoute: typeof ApiDbNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/db/orders': {
       id: '/api/db/orders'
       path: '/api/db/orders'
@@ -480,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   PharmacyDashboardRoute: PharmacyDashboardRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiDbMessagesRoute: ApiDbMessagesRoute,
+  ApiDbNotificationsRoute: ApiDbNotificationsRoute,
   ApiDbOrdersRoute: ApiDbOrdersRoute,
   ApiDbProductsRoute: ApiDbProductsRoute,
   ApiDbReviewsRoute: ApiDbReviewsRoute,

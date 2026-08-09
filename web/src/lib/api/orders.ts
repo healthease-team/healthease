@@ -36,7 +36,7 @@ export async function saveOrder(input: {
     update: { name: input.customerName },
   })
 
-  return prisma.order.create({
+  const order = await prisma.order.create({
     data: {
       userId: user.id,
       pharmacyId: input.pharmacyId,
@@ -70,6 +70,8 @@ export async function saveOrder(input: {
     },
     include: { items: true },
   })
+  await prisma.notification.create({ data: { userId: user.id, title: 'Order received', message: `Your order #${order.id.slice(-8)} has been sent to the pharmacy.` } })
+  return order
 }
 
 function mapOrder(row: Awaited<ReturnType<typeof fetchOrdersRaw>>[number]): Order {
@@ -137,5 +139,6 @@ export async function updateOrderStatus(orderId: string, status: string) {
     data: { status, updatedAt: new Date() },
     include: { items: true },
   })
+  await prisma.notification.create({ data: { userId: row.userId, title: 'Order update', message: `Your order #${row.id.slice(-8)} is now ${status.replaceAll('_', ' ')}.` } })
   return mapOrder(row)
 }

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import AccountHeader from '#/components/AccountHeader'
 import OrderHistoryList from '#/components/OrderHistoryList'
 import ReviewForm from '#/components/ReviewForm'
+import NotificationsList from '#/components/NotificationsList'
 import { getCustomerSession } from '#/lib/customer-auth'
 
 export const Route = createFileRoute('/account')({ component: AccountPage })
@@ -32,6 +33,7 @@ function AccountPage() {
           <div>
             <h1 className="text-2xl font-bold text-brand-navy mb-4">Share Your Experience</h1>
             <ReviewForm />
+            <NotificationsList />
           </div>
         </div>
       </main>

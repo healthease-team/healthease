@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createProduct, deleteProduct, getProducts, updateProduct } from '#/lib/api/products'
+import { requireSession } from '#/lib/auth'
 
 export const Route = createFileRoute('/api/db/products')({
   server: {
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/api/db/products')({
       },
       POST: async ({ request }) => {
         try {
+          await requireSession(request, 'pharmacy')
           const body = await request.json()
           const product = await createProduct(body)
           return Response.json(product)
@@ -25,6 +27,7 @@ export const Route = createFileRoute('/api/db/products')({
       },
       PATCH: async ({ request }) => {
         try {
+          await requireSession(request, 'pharmacy')
           const body = await request.json()
           const { productId, ...data } = body as { productId?: string } & Record<string, unknown>
           if (!productId) {
@@ -39,6 +42,7 @@ export const Route = createFileRoute('/api/db/products')({
       },
       DELETE: async ({ request }) => {
         try {
+          await requireSession(request, 'pharmacy')
           const url = new URL(request.url)
           const productId = url.searchParams.get('productId')
           if (!productId) {
