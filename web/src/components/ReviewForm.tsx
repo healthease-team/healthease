@@ -3,19 +3,44 @@ import StarRating from './ui/StarRating'
 import Button from './ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
 import { useToast } from '#/lib/toast-context'
+import { getCustomerSession } from '#/lib/customer-auth'
 
 export default function ReviewForm() {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
+  const session = getCustomerSession()
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    if (rating === 0 || !comment.trim()) return
-    // TODO(phase-2): POST review to Supabase, tied to authenticated profile
-    showToast('Thanks for your review!')
-    setRating(0)
-    setComment('')
+    if (rating === 0 || !comment.trim() || !session) return
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/db/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userEmail: session.email,
+          productId: 'account-review',
+          rating,
+          comment: comment.trim(),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Unable to save review')
+      }
+
+      showToast('Thanks for your review!')
+      setRating(0)
+      setComment('')
+    } catch {
+      showToast('We could not save your review right now. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -35,8 +60,8 @@ export default function ReviewForm() {
             placeholder="Tell us about your experience..."
           />
         </div>
-        <Button type="submit" variant="primary" disabled={rating === 0 || !comment.trim()}>
-          Submit Review
+        <Button type="submit" variant="primary" disabled={rating === 0 || !comment.trim() || loading}>
+          {loading ? 'Submitting…' : 'Submit Review'}
         </Button>
       </form>
     </div>

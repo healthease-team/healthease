@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import AdminHeader from '#/components/AdminHeader'
+import { getCustomerSession } from '#/lib/customer-auth'
 import StatusBadge from '#/components/ui/StatusBadge'
 import { messages as mockMessages, orders, pharmacies, products } from '#/lib/mock-data'
 import { useToast } from '#/lib/toast-context'
@@ -21,9 +22,21 @@ const initialPendingPharmacies: PendingPharmacy[] = [
 ]
 
 function AdminPage() {
+  const session = getCustomerSession()
   const { showToast } = useToast()
   const [messages, setMessages] = useState<Message[]>(mockMessages)
   const [pendingPharmacies, setPendingPharmacies] = useState(initialPendingPharmacies)
+
+  if (!session || session.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-page-bg flex items-center justify-center px-4">
+        <div className="bg-surface rounded-2xl p-8 text-center shadow-card">
+          <h1 className="text-2xl font-bold text-brand-navy">Access restricted</h1>
+          <p className="text-text-muted mt-2">Only administrators can access this area.</p>
+        </div>
+      </div>
+    )
+  }
 
   function markRead(id: string) {
     // TODO(phase-2): PATCH messages.read_at via Supabase

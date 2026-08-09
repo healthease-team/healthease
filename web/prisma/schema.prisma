@@ -5,7 +5,118 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  name             String?
+  image            String?
+  emailVerified    Boolean          @default(false)
+  role             String           @default("customer")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  sessions         Session[]
+  accounts         Account[]
+  reviews          Review[]
+  orders           Order[]
+  contactMessages  ContactMessage[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                      String    @id @default(cuid())
+  userId                  String
+  accountId               String
+  providerId              String
+  accessToken             String?
+  refreshToken            String?
+  accessTokenExpiresAt    DateTime?
+  refreshTokenExpiresAt   DateTime?
+  scope                   String?
+  idToken                 String?
+  password                String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  email     String
+  location  String
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Order {
+  id                String   @id @default(cuid())
+  userId            String
+  pharmacyId        String
+  customerName      String
+  email             String
+  phone             String
+  deliveryMethod    String
+  deliveryAddress   String?
+  pickupTime        String?
+  customerLat       Float?
+  customerLng       Float?
+  distanceKm        Float?
+  deliveryNotes     String?
+  prescriptionPath  String?
+  idCardPath        String?
+  bagTotal          Float
+  adminFee          Float
+  platformFee       Float
+  deliveryFee       Float
+  totalAmount       Float
+  status            String   @default("pending")
+  paymentStatus     String   @default("unpaid")
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Todo {

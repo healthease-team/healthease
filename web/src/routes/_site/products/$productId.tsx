@@ -3,8 +3,11 @@ import Button from '#/components/ui/Button'
 import { products } from '#/lib/mock-data'
 import { useCart } from '#/lib/cart-context'
 import { useToast } from '#/lib/toast-context'
-import { reviews } from '#/lib/mock-data'
+import { reviews as mockReviews } from '#/lib/mock-data'
 import StarRating from '#/components/ui/StarRating'
+import { getCustomerSession } from '#/lib/customer-auth'
+import { addReview, getReviews } from '#/lib/reviews-store'
+import { useEffect, useState, type FormEvent } from 'react'
 
 export const Route = createFileRoute('/_site/products/$productId')({
   component: ProductDetailPage,
@@ -15,6 +18,14 @@ function ProductDetailPage() {
   const product = products.find((item) => item.id === productId)
   const { addItem } = useCart()
   const { showToast } = useToast()
+  const session = getCustomerSession()
+  const [reviewText, setReviewText] = useState('')
+  const [rating, setRating] = useState(0)
+  const [allReviews, setAllReviews] = useState(() => getReviews(productId))
+
+  useEffect(() => {
+    setAllReviews(getReviews(productId))
+  }, [productId])
 
   if (!product) {
     return (
@@ -33,7 +44,44 @@ function ProductDetailPage() {
     showToast(`${product.name} added to cart`)
   }
 
-  const productReviews = reviews.slice(0, 3)
+  const productReviews = [...allReviews, ...mockReviews.filter((review) => review.productId === productId || review.productId === undefined)]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10)
+
+  function handleShare() {
+    if (typeof window === 'undefined') return
+    const url = `${window.location.origin}/products/${product.id}`
+    navigator.clipboard.writeText(url)
+    showToast('Product link copied to clipboard')
+  }
+
+  function handleSubmitReview(e: FormEvent) {
+    e.preventDefault()
+
+    if (!session) {
+      showToast('Please log in or register before leaving a review')
+      window.location.assign('/login')
+      return
+    }
+
+    if (!reviewText.trim() || rating < 1) return
+
+    const review = {
+      id: `${product.id}-${Date.now()}`,
+      productId: product.id,
+      authorId: session.email,
+      authorName: session.name,
+      comment: reviewText.trim(),
+      rating: rating as 1 | 2 | 3 | 4 | 5,
+      createdAt: new Date().toISOString(),
+    }
+
+    addReview(review)
+    setAllReviews(getReviews(productId))
+    setReviewText('')
+    setRating(0)
+    showToast('Thank you for your review')
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,20 +148,38 @@ function ProductDetailPage() {
         <div className="bg-surface rounded-3xl border border-brand-navy/10 p-6 shadow-card">
           <h2 className="text-2xl font-bold text-brand-navy mb-4">Leave a review</h2>
           <p className="text-text-muted mb-4">Share your experience with this product and help other customers make an informed choice.</p>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-brand-navy mb-2">Your rating</label>
-              <StarRating rating={4} readOnly size="lg" />
+
+          {!session ? (
+            <div className="space-y-3">
+              <p className="text-sm text-text-muted">Please log in or register before leaving a review.</p>
+              <div className="flex flex-wrap gap-3">
+                <Button variant="primary" href="/login">Log in / Register</Button>
+                <Button variant="outline" href="/register">Create account</Button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-brand-navy mb-2">Your review</label>
-              <textarea className="w-full rounded-xl border border-brand-navy/15 bg-surface px-4 py-3 text-brand-navy min-h-[112px]" placeholder="Tell us what you thought about this product..." />
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="primary">Submit review</Button>
-              <Button variant="outline">Share product</Button>
-            </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-brand-navy mb-2">Your rating</label>
+                <StarRating rating={rating} onChange={setRating} size="lg" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-brand-navy mb-2">Your review</label>
+                <textarea
+                  className="w-full rounded-xl border border-brand-navy/15 bg-surface px-4 py-3 text-brand-navy min-h-[112px]"
+                  placeholder="Tell us what you thought about this product..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Button type="submit" variant="primary" disabled={!reviewText.trim() || rating < 1}>
+                  Submit review
+                </Button>
+                <Button variant="outline" onClick={handleShare}>Share product</Button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

@@ -2,10 +2,12 @@ import { useState, type FormEvent } from 'react'
 import Button from './ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
 import { useToast } from '#/lib/toast-context'
+import { getCustomerSession } from '#/lib/customer-auth'
 import type { MessageType } from '#/lib/types'
 
 export default function ContactForm() {
   const { showToast } = useToast()
+  const session = getCustomerSession()
   const [type, setType] = useState<MessageType>('consulting')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -13,18 +15,31 @@ export default function ContactForm() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
-    // TODO(phase-2): insert into Supabase `messages`, trigger admin email notification
-    setTimeout(() => {
-      setLoading(false)
+
+    try {
+      const response = await fetch('/api/db/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userEmail: session?.email, name, email, location, type, message }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Unable to save message')
+      }
+
       showToast('Message sent — we\'ll get back to you soon!')
       setName('')
       setEmail('')
       setLocation('')
       setMessage('')
-    }, 600)
+    } catch {
+      showToast('We could not send your message right now. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

@@ -55,21 +55,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Reviews Section */}
-      <section className="py-8 sm:py-12">
-        <div className="container mx-auto px-4">
-          <div className="mb-6">
-            <h2 className="text-brand-navy font-bold text-left text-2xl md:text-3xl">Reviews</h2>
-            <p className="text-text-muted text-left">Real experiences from customers who trust HealthEase for everyday care.</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {reviews.slice(0, 6).map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Shop by Category Section */}
       <section className="py-8 sm:py-12">
         <div className="container mx-auto px-4">
@@ -105,6 +90,21 @@ function Home() {
             <Link to="/shop" className="text-link-blue hover:underline inline-flex items-center gap-1">
               View Category <span className="bi bi-arrow-right"></span>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Reviews Section */}
+      <section className="py-8 sm:py-12">
+        <div className="container mx-auto px-4">
+          <div className="mb-6">
+            <h2 className="text-brand-navy font-bold text-left text-2xl md:text-3xl">Reviews</h2>
+            <p className="text-text-muted text-left">Real experiences from customers who trust HealthEase for everyday care.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {reviews.slice(0, 6).map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
           </div>
         </div>
       </section>

@@ -96,6 +96,7 @@ export interface Order {
 
 export interface Review {
   id: string
+  productId?: string
   authorId?: string
   authorName: string
   comment: string

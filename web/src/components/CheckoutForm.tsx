@@ -4,9 +4,11 @@ import Button from './ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
 import { pharmacies } from '#/lib/mock-data'
 import { haversineKm } from '#/lib/geo'
-import { MAX_DELIVERY_DISTANCE_KM } from '#/lib/constants'
+import { ADMIN_FEE, MAX_DELIVERY_DISTANCE_KM, PLATFORM_FEE, deliveryFee } from '#/lib/constants'
 import type { DeliveryMethod } from '#/lib/types'
 import { getCustomerSession } from '#/lib/customer-auth'
+import { useCart } from '#/lib/cart-context'
+import { useToast } from '#/lib/toast-context'
 
 const paymentMethods = ['cash', 'card'] as const
 
@@ -28,6 +30,8 @@ export default function CheckoutForm({
   cartIsEmpty,
 }: CheckoutFormProps) {
   const session = getCustomerSession()
+  const { bagTotal } = useCart()
+  const { showToast } = useToast()
   const [name, setName] = useState(session?.name ?? '')
   const [email, setEmail] = useState(session?.email ?? '')
   const [phone, setPhone] = useState(session?.phone ?? '')
@@ -43,6 +47,12 @@ export default function CheckoutForm({
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [locating, setLocating] = useState(false)
   const [distanceError, setDistanceError] = useState<string | null>(null)
+  const [customerLocation, setCustomerLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [deliveryNotes, setDeliveryNotes] = useState('')
+
+  const mapPreviewUrl = customerLocation
+    ? `https://www.google.com/maps?q=${customerLocation.lat},${customerLocation.lng}&z=15&output=embed`
+    : null
 
   function handleUseMyLocation() {
     if (!navigator.geolocation) return
@@ -57,6 +67,7 @@ export default function CheckoutForm({
           pharmacy.lat,
           pharmacy.lng
         )
+        setCustomerLocation({ lat: position.coords.latitude, lng: position.coords.longitude })
         onDistanceChange(km)
         if (km > MAX_DELIVERY_DISTANCE_KM) {
           setDistanceError(`Delivery unavailable — you're ${km.toFixed(1)}km from the selected pharmacy (max ${MAX_DELIVERY_DISTANCE_KM}km).`)
@@ -70,6 +81,10 @@ export default function CheckoutForm({
     )
   }
 
+  const fee = deliveryMethod === 'delivery' && distanceKm !== null ? deliveryFee(distanceKm) : 0
+  const vat = (bagTotal + ADMIN_FEE + PLATFORM_FEE + fee) * 0.1
+  const totalDue = bagTotal + ADMIN_FEE + PLATFORM_FEE + fee + vat
+
   const isValid =
     !cartIsEmpty &&
     name.trim() &&
@@ -79,13 +94,52 @@ export default function CheckoutForm({
     idCard &&
     termsAccepted &&
     (deliveryMethod === 'pickup' || (billingAddress.trim() && (sameAsBilling ? deliveryAddress.trim() || true : deliveryAddress.trim()) && distanceKm !== null && distanceKm <= MAX_DELIVERY_DISTANCE_KM)) &&
-    (paymentMethod === 'card' || Number(cashAmount || 0) >= 0)
+    (paymentMethod === 'card' || Number(cashAmount || 0) >= totalDue)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+
+    if (paymentMethod === 'cash' && Number(cashAmount || 0) < totalDue) {
+      showToast(`Cash amount must be at least SRD ${totalDue.toFixed(2)}`)
+      return
+    }
+
     if (!isValid) return
-    // TODO(phase-2): upload prescription/idCard to Supabase Storage, create order via Supabase, redirect to Stripe Checkout
-    onPlaceOrder()
+
+    try {
+      const response = await fetch('/api/db/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userEmail: session?.email ?? 'guest@example.com',
+          pharmacyId,
+          customerName: name,
+          email,
+          phone,
+          deliveryMethod,
+          deliveryAddress: deliveryMethod === 'delivery' ? (sameAsBilling ? billingAddress : deliveryAddress) : null,
+          deliveryNotes,
+          customerLat: customerLocation?.lat ?? null,
+          customerLng: customerLocation?.lng ?? null,
+          distanceKm: distanceKm ?? null,
+          prescriptionPath: prescription?.name ?? null,
+          idCardPath: idCard?.name ?? null,
+          bagTotal,
+          adminFee: ADMIN_FEE,
+          platformFee: PLATFORM_FEE,
+          deliveryFee: fee,
+          totalAmount: totalDue,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Unable to place order')
+      }
+
+      onPlaceOrder()
+    } catch {
+      window.alert('We could not save your order right now. Please try again.')
+    }
   }
 
   return (
@@ -125,7 +179,14 @@ export default function CheckoutForm({
           </div>
           <div>
             <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
-            <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} required />
+            <input
+              inputMode="numeric"
+              pattern="[0-9]*"
+              className={inputClass}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              required
+            />
           </div>
           <div>
             <label className={labelClass}>Pharmacy</label>
@@ -188,9 +249,20 @@ export default function CheckoutForm({
               <input type="checkbox" checked={useExactLocation} onChange={(e) => setUseExactLocation(e.target.checked)} />
               Use my exact location
             </label>
-            <div className="rounded-xl border border-dashed border-brand-navy/25 bg-surface/70 h-36 flex flex-col items-center justify-center gap-2 text-text-muted-2 text-sm">
-              <i className="bi bi-map text-2xl" />
-              <span>Map preview coming soon</span>
+            <div className="rounded-xl border border-dashed border-brand-navy/25 bg-surface/70 h-48 overflow-hidden">
+              {mapPreviewUrl ? (
+                <iframe
+                  title="Delivery map preview"
+                  src={mapPreviewUrl}
+                  className="h-full w-full"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-mint-light/20 px-4 text-center text-sm text-text-muted">
+                  Tap “Use My Location” to preview the delivery area on Google Maps.
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <Button type="button" variant="outline" onClick={handleUseMyLocation} disabled={locating}>
@@ -199,6 +271,15 @@ export default function CheckoutForm({
               {distanceKm !== null && !distanceError && (
                 <span className="text-sm text-text-muted">≈ {distanceKm.toFixed(1)}km away</span>
               )}
+            </div>
+            <div>
+              <label className={labelClass}>Delivery notes</label>
+              <textarea
+                className={`${inputClass} min-h-[72px] resize-none`}
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                placeholder="e.g. where to park"
+              />
             </div>
             {distanceError && <p className="text-sm text-red-600">{distanceError}</p>}
           </div>

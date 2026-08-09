@@ -3,12 +3,13 @@ import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
 import AuthCard from '#/components/AuthCard'
 import Button from '#/components/ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
-import { signInUser, type AppRole } from '#/lib/customer-auth'
+import { setCustomerSession, type AppRole } from '#/lib/customer-auth'
 
-export const Route = createFileRoute('/_auth/login')({ component: LoginPage })
+export const Route = createFileRoute('/_auth/register')({ component: RegisterPage })
 
-function LoginPage() {
+function RegisterPage() {
   const navigate = useNavigate()
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<AppRole>('customer')
@@ -18,12 +19,7 @@ function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    const session = signInUser(email, password, role)
-    if (!session) {
-      window.alert('Invalid credentials for the selected role')
-      setLoading(false)
-      return
-    }
+    setCustomerSession({ id: email, name, email, phone: '+597 000 0000', role })
 
     if (role === 'pharmacy') {
       navigate({ to: '/pharmacy/dashboard' })
@@ -36,8 +32,12 @@ function LoginPage() {
   }
 
   return (
-    <AuthCard title="Welcome back" subtitle="Log in to manage your orders">
+    <AuthCard title="Create an account" subtitle="Choose the account type that fits your role">
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className={labelClass}>Full name</label>
+          <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
         <div>
           <label className={labelClass}>Email</label>
           <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -55,19 +55,13 @@ function LoginPage() {
           </select>
         </div>
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
-          {loading ? 'Logging in…' : 'Log In'}
+          {loading ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
       <p className="text-center text-sm text-text-muted mt-5">
-        Don&apos;t have an account?{' '}
-        <Link to="/register" className="text-link-blue hover:underline">
-          Register
-        </Link>
-      </p>
-      <p className="text-center text-sm text-text-muted mt-1">
-        Own a pharmacy?{' '}
-        <Link to="/register/pharmacy" className="text-link-blue hover:underline">
-          Register your pharmacy
+        Already have an account?{' '}
+        <Link to="/login" className="text-link-blue hover:underline">
+          Log in
         </Link>
       </p>
     </AuthCard>

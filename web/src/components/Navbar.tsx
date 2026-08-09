@@ -45,7 +45,7 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Button variant="outline" className="!rounded-lg !px-4 !py-2" onClick={openLocations}>
+            <Button variant="outline" className="!rounded-lg !px-4 !py-2 !border-0" onClick={openLocations}>
               Locations
             </Button>
             <Link to="/checkout" className="relative text-brand-navy hover:text-link-blue transition-colors">
@@ -122,7 +122,7 @@ export default function Navbar() {
             </Link>
             <Button
               variant="outline"
-              className="mt-2 !rounded-lg"
+              className="mt-2 !rounded-lg !border-0"
               onClick={() => {
                 openLocations()
                 setIsMenuOpen(false)
