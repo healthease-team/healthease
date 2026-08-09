@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
 const sections = [
   {
@@ -30,6 +30,9 @@ function TermsPage() {
     <div className="container mx-auto px-4 py-16 max-w-3xl">
       <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-8">
         <h1 className="text-3xl font-extrabold text-brand-navy mb-8">Terms &amp; Conditions</h1>
+        <Link to="/checkout" className="inline-flex items-center gap-2 rounded-full border-2 border-brand-navy px-5 py-2 text-sm font-semibold text-brand-navy hover:bg-mint-light mb-6">
+          <i className="bi bi-arrow-left" /> Back to cart
+        </Link>
         <div className="space-y-6">
           {sections.map((s) => (
             <div key={s.title}>

@@ -4,6 +4,7 @@ import Button from './ui/Button'
 import ThemeToggle from './ui/ThemeToggle'
 import { useCart } from '#/lib/cart-context'
 import { useLocationsModal } from '#/lib/locations-modal-context'
+import { getCustomerSession } from '#/lib/customer-auth'
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { itemCount } = useCart()
   const { open: openLocations } = useLocationsModal()
+  const [session, setSession] = useState(() => getCustomerSession())
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : ''
@@ -23,6 +25,13 @@ export default function Navbar() {
       document.body.style.overflow = ''
     }
   }, [isMenuOpen])
+
+  useEffect(() => {
+    const sync = () => setSession(getCustomerSession())
+    window.addEventListener('storage', sync)
+    window.addEventListener('focus', sync)
+    return () => { window.removeEventListener('storage', sync); window.removeEventListener('focus', sync) }
+  }, [])
 
   return (
     <nav className="bg-surface shadow-sm sticky top-0 z-40">
@@ -56,8 +65,8 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            <Link to="/login" className="text-brand-navy hover:text-link-blue transition-colors">
-              <i className="bi bi-person-circle text-xl" />
+            <Link to={session?.role === 'customer' ? '/account' : '/login'} className="text-brand-navy hover:text-link-blue transition-colors" title={session ? `Signed in as ${session.name}` : 'Login or register'}>
+              {session?.name ? <span className="text-sm font-semibold">{session.name}</span> : <i className="bi bi-person-circle text-xl" />}
             </Link>
             <ThemeToggle />
           </div>
@@ -114,11 +123,11 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              to="/login"
+              to={session?.role === 'customer' ? '/account' : '/login'}
               className="text-brand-navy text-2xl font-semibold hover:text-link-blue transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              Login / Register
+              {session?.name ?? 'Login / Register'}
             </Link>
             <Button
               variant="outline"

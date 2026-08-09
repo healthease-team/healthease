@@ -3,7 +3,7 @@ import { Link, useNavigate, createFileRoute } from '@tanstack/react-router'
 import AuthCard from '#/components/AuthCard'
 import Button from '#/components/ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
-import { setCustomerSession, type AppRole } from '#/lib/customer-auth'
+import { registerUser, type AppRole } from '#/lib/customer-auth'
 
 export const Route = createFileRoute('/_auth/register')({ component: RegisterPage })
 
@@ -19,7 +19,13 @@ function RegisterPage() {
     e.preventDefault()
     setLoading(true)
 
-    setCustomerSession({ id: email, name, email, phone: '+597 000 0000', role })
+    try {
+      registerUser({ id: email, name, email, phone: '+597 000 0000', role, password })
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Unable to create account')
+      setLoading(false)
+      return
+    }
 
     if (role === 'pharmacy') {
       navigate({ to: '/pharmacy/dashboard' })

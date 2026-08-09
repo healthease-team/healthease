@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import ShopSearch from '#/components/ShopSearch'
-import { categories, products } from '#/lib/mock-data'
+import { categories, products as mockProducts } from '#/lib/mock-data'
+import type { Product } from '#/lib/types'
 
 export const Route = createFileRoute('/_site/shop')({
   validateSearch: (search: Record<string, unknown>): { category?: string } => ({
@@ -11,6 +13,12 @@ export const Route = createFileRoute('/_site/shop')({
 
 function ShopPage() {
   const { category } = Route.useSearch()
+  const [products, setProducts] = useState<Product[]>(mockProducts)
+  useEffect(() => {
+    fetch('/api/db/products').then((response) => response.ok ? response.json() : []).then((rows: Array<{ product: Product }>) => {
+      if (rows.length) setProducts(rows.map((row) => row.product))
+    }).catch(() => undefined)
+  }, [])
 
   const activeCategory = category ? categories.find((c) => c.id === category || c.slug === category) : undefined
 

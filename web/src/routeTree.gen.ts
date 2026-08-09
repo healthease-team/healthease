@@ -28,6 +28,7 @@ import { Route as SiteProductsProductIdRouteImport } from './routes/_site/produc
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiDbMessagesRouteImport } from './routes/api/db/messages'
 import { Route as ApiDbOrdersRouteImport } from './routes/api/db/orders'
+import { Route as ApiDbProductsRouteImport } from './routes/api/db/products'
 import { Route as ApiDbReviewsRouteImport } from './routes/api/db/reviews'
 
 const AuthRoute = AuthRouteImport.update({
@@ -123,6 +124,11 @@ const ApiDbOrdersRoute = ApiDbOrdersRouteImport.update({
   path: '/api/db/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDbProductsRoute = ApiDbProductsRouteImport.update({
+  id: '/api/db/products',
+  path: '/api/db/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiDbReviewsRoute = ApiDbReviewsRouteImport.update({
   id: '/api/db/reviews',
   path: '/api/db/reviews',
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
+  '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
 }
 export interface FileRoutesByTo {
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
+  '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
 }
 export interface FileRoutesById {
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
   '/api/db/orders': typeof ApiDbOrdersRoute
+  '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
 }
 export interface FileRouteTypes {
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/db/messages'
     | '/api/db/orders'
+    | '/api/db/products'
     | '/api/db/reviews'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/db/messages'
     | '/api/db/orders'
+    | '/api/db/products'
     | '/api/db/reviews'
   id:
     | '__root__'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/db/messages'
     | '/api/db/orders'
+    | '/api/db/products'
     | '/api/db/reviews'
   fileRoutesById: FileRoutesById
 }
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiDbMessagesRoute: typeof ApiDbMessagesRoute
   ApiDbOrdersRoute: typeof ApiDbOrdersRoute
+  ApiDbProductsRoute: typeof ApiDbProductsRoute
   ApiDbReviewsRoute: typeof ApiDbReviewsRoute
 }
 
@@ -404,6 +417,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDbOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/db/products': {
+      id: '/api/db/products'
+      path: '/api/db/products'
+      fullPath: '/api/db/products'
+      preLoaderRoute: typeof ApiDbProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/db/reviews': {
       id: '/api/db/reviews'
       path: '/api/db/reviews'
@@ -461,6 +481,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiDbMessagesRoute: ApiDbMessagesRoute,
   ApiDbOrdersRoute: ApiDbOrdersRoute,
+  ApiDbProductsRoute: ApiDbProductsRoute,
   ApiDbReviewsRoute: ApiDbReviewsRoute,
 }
 export const routeTree = rootRouteImport

@@ -7,18 +7,29 @@ import { dashboardCategories, useDashboardData } from '#/lib/dashboard-context'
 export default function NewItemModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { addProduct } = useDashboardData()
   const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
   const [price, setPrice] = useState('')
   const [categoryId, setCategoryId] = useState(dashboardCategories[0].id)
   const [quantity, setQuantity] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!name.trim() || !price || !quantity) return
-    addProduct({ name, price: Number(price), categoryId, quantity: Number(quantity) })
-    setName('')
-    setPrice('')
-    setQuantity('')
-    onClose()
+    setSaving(true)
+    try {
+      await addProduct({ name, description, price: Number(price), categoryId, quantity: Number(quantity), imageUrl: imageUrl || '/images/products/bandages.png' })
+      setName(''); setDescription(''); setPrice(''); setQuantity(''); setImageUrl('')
+      onClose()
+    } finally { setSaving(false) }
+  }
+
+  function handleImage(file: File | undefined) {
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setImageUrl(String(reader.result))
+    reader.readAsDataURL(file)
   }
 
   return (
@@ -27,6 +38,15 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
         <div>
           <label className={labelClass}>Product Name</label>
           <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} required />
+        </div>
+        <div>
+          <label className={labelClass}>Description</label>
+          <textarea className={`${inputClass} min-h-20`} value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <div>
+          <label className={labelClass}>Product photo</label>
+          <input type="file" accept="image/*" className={inputClass} onChange={(e) => handleImage(e.target.files?.[0])} />
+          {imageUrl && <img src={imageUrl} alt="Product preview" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
         </div>
         <div>
           <label className={labelClass}>Category</label>
@@ -48,8 +68,8 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
             <input type="number" min={0} className={inputClass} value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
           </div>
         </div>
-        <Button type="submit" variant="primary" className="w-full">
-          Add Product
+        <Button type="submit" variant="primary" className="w-full" disabled={saving}>
+          {saving ? 'Adding…' : 'Add Product'}
         </Button>
       </form>
     </Modal>

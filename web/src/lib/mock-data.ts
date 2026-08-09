@@ -113,7 +113,7 @@ export const orders: Order[] = [
     deliveryMethod: 'delivery', deliveryAddress: 'Zwartenhovenbrugstraat 3, Paramaribo',
     customerLat: 5.82, customerLng: -55.16, distanceKm: 7.1,
     bagTotal: 180, adminFee: 30, platformFee: 50, deliveryFee: 100, totalAmount: 360,
-    status: 'processing', paymentStatus: 'paid', createdAt: '2026-07-10',
+    status: 'accepted', paymentStatus: 'paid', createdAt: '2026-07-10',
     items: [
       { id: 'oi6', orderId: 'o4', productId: 'p9', productName: 'Pulse Oximeter', unitPrice: 180, quantity: 1 },
     ],

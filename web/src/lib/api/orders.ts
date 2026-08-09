@@ -1,4 +1,12 @@
 import { prisma } from '#/db'
+import type { Order, OrderItem } from '#/lib/types'
+
+export interface OrderItemInput {
+  productId: string
+  productName: string
+  unitPrice: number
+  quantity: number
+}
 
 export async function saveOrder(input: {
   userEmail: string
@@ -20,11 +28,12 @@ export async function saveOrder(input: {
   platformFee: number
   deliveryFee: number
   totalAmount: number
+  items?: OrderItemInput[]
 }) {
   const user = await prisma.user.upsert({
     where: { email: input.userEmail },
     create: { email: input.userEmail, role: 'customer', name: input.customerName },
-    update: {},
+    update: { name: input.customerName },
   })
 
   return prisma.order.create({
@@ -48,6 +57,85 @@ export async function saveOrder(input: {
       platformFee: input.platformFee,
       deliveryFee: input.deliveryFee,
       totalAmount: input.totalAmount,
+      items: input.items?.length
+        ? {
+            create: input.items.map((item) => ({
+              productId: item.productId,
+              productName: item.productName,
+              unitPrice: item.unitPrice,
+              quantity: item.quantity,
+            })),
+          }
+        : undefined,
     },
+    include: { items: true },
   })
+}
+
+function mapOrder(row: Awaited<ReturnType<typeof fetchOrdersRaw>>[number]): Order {
+  return {
+    id: row.id,
+    customerId: row.userId,
+    pharmacyId: row.pharmacyId,
+    customerName: row.customerName,
+    email: row.email,
+    phone: row.phone,
+    deliveryMethod: row.deliveryMethod as Order['deliveryMethod'],
+    deliveryAddress: row.deliveryAddress ?? undefined,
+    pickupTime: row.pickupTime ?? undefined,
+    customerLat: row.customerLat ?? undefined,
+    customerLng: row.customerLng ?? undefined,
+    distanceKm: row.distanceKm ?? undefined,
+    deliveryNotes: row.deliveryNotes ?? undefined,
+    prescriptionPath: row.prescriptionPath ?? undefined,
+    idCardPath: row.idCardPath ?? undefined,
+    bagTotal: row.bagTotal,
+    adminFee: row.adminFee,
+    platformFee: row.platformFee,
+    deliveryFee: row.deliveryFee,
+    totalAmount: row.totalAmount,
+    status: row.status as Order['status'],
+    paymentStatus: row.paymentStatus as Order['paymentStatus'],
+    createdAt: row.createdAt.toISOString(),
+    items: row.items.map(
+      (item): OrderItem => ({
+        id: item.id,
+        orderId: item.orderId,
+        productId: item.productId,
+        productName: item.productName,
+        unitPrice: item.unitPrice,
+        quantity: item.quantity,
+      })
+    ),
+  }
+}
+
+async function fetchOrdersRaw(where: { email?: string; pharmacyId?: string }) {
+  return prisma.order.findMany({
+    where: {
+      ...(where.email ? { email: where.email } : {}),
+      ...(where.pharmacyId ? { pharmacyId: where.pharmacyId } : {}),
+    },
+    include: { items: true },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+export async function getOrdersByEmail(email: string) {
+  const rows = await fetchOrdersRaw({ email })
+  return rows.map(mapOrder)
+}
+
+export async function getOrdersByPharmacy(pharmacyId: string) {
+  const rows = await fetchOrdersRaw({ pharmacyId })
+  return rows.map(mapOrder)
+}
+
+export async function updateOrderStatus(orderId: string, status: string) {
+  const row = await prisma.order.update({
+    where: { id: orderId },
+    data: { status, updatedAt: new Date() },
+    include: { items: true },
+  })
+  return mapOrder(row)
 }

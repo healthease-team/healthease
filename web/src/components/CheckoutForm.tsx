@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import Button from './ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
@@ -9,6 +9,7 @@ import type { DeliveryMethod } from '#/lib/types'
 import { getCustomerSession } from '#/lib/customer-auth'
 import { useCart } from '#/lib/cart-context'
 import { useToast } from '#/lib/toast-context'
+import { getCheckoutDraft, saveCheckoutDraft } from '#/lib/checkout-draft'
 
 const paymentMethods = ['cash', 'card'] as const
 
@@ -29,37 +30,63 @@ export default function CheckoutForm({
   onPlaceOrder,
   cartIsEmpty,
 }: CheckoutFormProps) {
+  const draft = getCheckoutDraft()
   const session = getCustomerSession()
-  const { bagTotal } = useCart()
+  const { bagTotal, items } = useCart()
   const { showToast } = useToast()
-  const [name, setName] = useState(session?.name ?? '')
-  const [email, setEmail] = useState(session?.email ?? '')
-  const [phone, setPhone] = useState(session?.phone ?? '')
-  const [billingAddress, setBillingAddress] = useState('')
-  const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [sameAsBilling, setSameAsBilling] = useState(true)
-  const [useExactLocation, setUseExactLocation] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<(typeof paymentMethods)[number]>('cash')
-  const [cashAmount, setCashAmount] = useState('')
-  const [pharmacyId, setPharmacyId] = useState(pharmacies[0].id)
-  const [prescription, setPrescription] = useState<File | null>(null)
-  const [idCard, setIdCard] = useState<File | null>(null)
-  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [name, setName] = useState(draft.name ?? session?.name ?? '')
+  const [email, setEmail] = useState(draft.email ?? session?.email ?? '')
+  const [phone, setPhone] = useState(draft.phone ?? session?.phone ?? '')
+  const [billingAddress, setBillingAddress] = useState(draft.billingAddress ?? '')
+  const [deliveryAddress, setDeliveryAddress] = useState(draft.deliveryAddress ?? '')
+  const [sameAsBilling, setSameAsBilling] = useState(draft.sameAsBilling ?? true)
+  const [useExactLocation, setUseExactLocation] = useState(draft.useExactLocation ?? false)
+  const [paymentMethod, setPaymentMethod] = useState<(typeof paymentMethods)[number]>(draft.paymentMethod ?? 'cash')
+  const [cashAmount, setCashAmount] = useState(draft.cashAmount ?? '')
+  const [pharmacyId, setPharmacyId] = useState(draft.pharmacyId ?? pharmacies[0].id)
+  const [prescription, setPrescription] = useState<File | null>(draft.prescription ?? null)
+  const [idCard, setIdCard] = useState<File | null>(draft.idCard ?? null)
+  const [termsAccepted, setTermsAccepted] = useState(draft.termsAccepted ?? false)
   const [locating, setLocating] = useState(false)
   const [distanceError, setDistanceError] = useState<string | null>(null)
-  const [customerLocation, setCustomerLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [deliveryNotes, setDeliveryNotes] = useState('')
+  const [customerLocation, setCustomerLocation] = useState<{ lat: number; lng: number } | null>(draft.customerLocation ?? null)
+  const [deliveryNotes, setDeliveryNotes] = useState(draft.deliveryNotes ?? '')
 
-  const mapPreviewUrl = customerLocation
-    ? `https://www.google.com/maps?q=${customerLocation.lat},${customerLocation.lng}&z=15&output=embed`
-    : null
+  useEffect(() => { saveCheckoutDraft({ name, email, phone, billingAddress, deliveryAddress, sameAsBilling, useExactLocation, paymentMethod, cashAmount, pharmacyId, prescription, idCard, termsAccepted, distanceKm, customerLocation, deliveryNotes, deliveryMethod }) }, [name, email, phone, billingAddress, deliveryAddress, sameAsBilling, useExactLocation, paymentMethod, cashAmount, pharmacyId, prescription, idCard, termsAccepted, distanceKm, customerLocation, deliveryNotes, deliveryMethod])
+
+  async function fileToDataUrl(file: File | null) {
+    if (!file) return null
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const mapCenter = customerLocation ?? pharmacies.find((pharmacy) => pharmacy.id === pharmacyId) ?? pharmacies[0]
+  const mapPreviewUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${mapCenter.lng - 0.01}%2C${mapCenter.lat - 0.01}%2C${mapCenter.lng + 0.01}%2C${mapCenter.lat + 0.01}&layer=mapnik&marker=${mapCenter.lat}%2C${mapCenter.lng}`
 
   function handleUseMyLocation() {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation) {
+      setDistanceError('Location is not supported by this browser. Enter your delivery address instead.')
+      return
+    }
     setLocating(true)
     setDistanceError(null)
+    let finished = false
+    const timeout = window.setTimeout(() => {
+      if (!finished) {
+        finished = true
+        setLocating(false)
+        setDistanceError('Location request timed out. Please check your browser permission and try again.')
+      }
+    }, 12000)
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        if (finished) return
+        finished = true
+        window.clearTimeout(timeout)
         const pharmacy = pharmacies.find((p) => p.id === pharmacyId) ?? pharmacies[0]
         const km = haversineKm(
           position.coords.latitude,
@@ -74,10 +101,14 @@ export default function CheckoutForm({
         }
         setLocating(false)
       },
-      () => {
+      (error) => {
+        if (finished) return
+        finished = true
+        window.clearTimeout(timeout)
         setLocating(false)
-        setDistanceError('Could not get your location. Please allow location access and try again.')
-      }
+        setDistanceError(error.code === error.TIMEOUT ? 'Location request timed out. Please try again.' : 'Could not get your location. Please allow location access and try again.')
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
     )
   }
 
@@ -107,6 +138,7 @@ export default function CheckoutForm({
     if (!isValid) return
 
     try {
+      const [prescriptionPath, idCardPath] = await Promise.all([fileToDataUrl(prescription), fileToDataUrl(idCard)])
       const response = await fetch('/api/db/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -122,13 +154,14 @@ export default function CheckoutForm({
           customerLat: customerLocation?.lat ?? null,
           customerLng: customerLocation?.lng ?? null,
           distanceKm: distanceKm ?? null,
-          prescriptionPath: prescription?.name ?? null,
-          idCardPath: idCard?.name ?? null,
+          prescriptionPath,
+          idCardPath,
           bagTotal,
           adminFee: ADMIN_FEE,
           platformFee: PLATFORM_FEE,
           deliveryFee: fee,
           totalAmount: totalDue,
+          items: items.map((item) => ({ productId: item.productId, productName: item.name, unitPrice: item.price, quantity: item.quantity })),
         }),
       })
 
@@ -156,8 +189,8 @@ export default function CheckoutForm({
               accept="image/*,.pdf"
               className={inputClass}
               onChange={(e) => setPrescription(e.target.files?.[0] ?? null)}
-              required
             />
+            {prescription && <p className="mt-1 text-xs text-text-muted"><i className="bi bi-file-earmark-check" /> {prescription.name}</p>}
           </div>
           <div>
             <label className={labelClass}>ID Card <span className="text-red-500">*</span></label>
@@ -166,8 +199,8 @@ export default function CheckoutForm({
               accept="image/*,.pdf"
               className={inputClass}
               onChange={(e) => setIdCard(e.target.files?.[0] ?? null)}
-              required
             />
+            {idCard && <p className="mt-1 text-xs text-text-muted"><i className="bi bi-file-earmark-check" /> {idCard.name}</p>}
           </div>
           <div>
             <label className={labelClass}>Full Name <span className="text-red-500">*</span></label>
@@ -246,23 +279,11 @@ export default function CheckoutForm({
               <input className={inputClass} value={sameAsBilling ? billingAddress : deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} disabled={sameAsBilling} />
             </div>
             <label className="flex items-center gap-2 text-sm text-text-muted">
-              <input type="checkbox" checked={useExactLocation} onChange={(e) => setUseExactLocation(e.target.checked)} />
+              <input type="checkbox" checked={useExactLocation} onChange={(e) => { setUseExactLocation(e.target.checked); if (e.target.checked) handleUseMyLocation() }} />
               Use my exact location
             </label>
             <div className="rounded-xl border border-dashed border-brand-navy/25 bg-surface/70 h-48 overflow-hidden">
-              {mapPreviewUrl ? (
-                <iframe
-                  title="Delivery map preview"
-                  src={mapPreviewUrl}
-                  className="h-full w-full"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center bg-mint-light/20 px-4 text-center text-sm text-text-muted">
-                  Tap “Use My Location” to preview the delivery area on Google Maps.
-                </div>
-              )}
+              <iframe title="Delivery map preview" src={mapPreviewUrl} className="h-full w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
             </div>
             <div className="flex items-center gap-3">
               <Button type="button" variant="outline" onClick={handleUseMyLocation} disabled={locating}>

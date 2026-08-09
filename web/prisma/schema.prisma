@@ -66,6 +66,39 @@ model Verification {
   updatedAt  DateTime @updatedAt
 }
 
+model Category {
+  id       String    @id
+  name     String
+  slug     String    @unique
+  image    String
+  products Product[]
+}
+
+model Product {
+  id          String      @id @default(cuid())
+  name        String
+  description String      @default("")
+  price       Float
+  categoryId  String
+  imageUrl    String
+  subCategory String?
+  pharmacyId  String      @default("ph1")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  category    Category    @relation(fields: [categoryId], references: [id])
+  stock       StockEntry?
+}
+
+model StockEntry {
+  id         String  @id @default(cuid())
+  pharmacyId String
+  productId  String  @unique
+  quantity   Int     @default(0)
+
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
 model Review {
   id        String   @id @default(cuid())
   userId    String
@@ -92,7 +125,7 @@ model ContactMessage {
 }
 
 model Order {
-  id                String   @id @default(cuid())
+  id                String      @id @default(cuid())
   userId            String
   pharmacyId        String
   customerName      String
@@ -112,11 +145,24 @@ model Order {
   platformFee       Float
   deliveryFee       Float
   totalAmount       Float
-  status            String   @default("pending")
-  paymentStatus     String   @default("unpaid")
-  createdAt         DateTime @default(now())
+  status            String      @default("pending")
+  paymentStatus     String      @default("unpaid")
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id          String @id @default(cuid())
+  orderId     String
+  productId   String
+  productName String
+  unitPrice   Float
+  quantity    Int
+
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model Todo {

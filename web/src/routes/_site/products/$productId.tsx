@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import Button from '#/components/ui/Button'
-import { products } from '#/lib/mock-data'
+import { products as mockProducts } from '#/lib/mock-data'
 import { useCart } from '#/lib/cart-context'
 import { useToast } from '#/lib/toast-context'
 import { reviews as mockReviews } from '#/lib/mock-data'
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_site/products/$productId')({
 
 function ProductDetailPage() {
   const { productId } = Route.useParams()
-  const product = products.find((item) => item.id === productId)
+  const [product, setProduct] = useState(() => mockProducts.find((item) => item.id === productId))
   const { addItem } = useCart()
   const { showToast } = useToast()
   const session = getCustomerSession()
@@ -25,6 +25,13 @@ function ProductDetailPage() {
 
   useEffect(() => {
     setAllReviews(getReviews(productId))
+  }, [productId])
+
+  useEffect(() => {
+    fetch('/api/db/products').then((response) => response.ok ? response.json() : []).then((rows: Array<{ product: typeof mockProducts[number] }>) => {
+      const found = rows.find((row) => row.product.id === productId)?.product
+      if (found) setProduct(found)
+    }).catch(() => undefined)
   }, [productId])
 
   if (!product) {
@@ -38,10 +45,11 @@ function ProductDetailPage() {
       </div>
     )
   }
+  const selectedProduct = product
 
   function handleAddToCart() {
-    addItem(product)
-    showToast(`${product.name} added to cart`)
+    addItem(selectedProduct)
+    showToast(`${selectedProduct.name} added to cart`)
   }
 
   const productReviews = [...allReviews, ...mockReviews.filter((review) => review.productId === productId || review.productId === undefined)]
@@ -50,12 +58,12 @@ function ProductDetailPage() {
 
   function handleShare() {
     if (typeof window === 'undefined') return
-    const url = `${window.location.origin}/products/${product.id}`
+    const url = `${window.location.origin}/products/${selectedProduct.id}`
     navigator.clipboard.writeText(url)
     showToast('Product link copied to clipboard')
   }
 
-  function handleSubmitReview(e: FormEvent) {
+  async function handleSubmitReview(e: FormEvent) {
     e.preventDefault()
 
     if (!session) {
@@ -66,21 +74,15 @@ function ProductDetailPage() {
 
     if (!reviewText.trim() || rating < 1) return
 
-    const review = {
-      id: `${product.id}-${Date.now()}`,
-      productId: product.id,
-      authorId: session.email,
-      authorName: session.name,
-      comment: reviewText.trim(),
-      rating: rating as 1 | 2 | 3 | 4 | 5,
-      createdAt: new Date().toISOString(),
-    }
-
-    addReview(review)
-    setAllReviews(getReviews(productId))
-    setReviewText('')
-    setRating(0)
-    showToast('Thank you for your review')
+    try {
+      const response = await fetch('/api/db/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userEmail: session.email, userName: session.name, productId: selectedProduct.id, rating, comment: reviewText.trim() }) })
+      if (!response.ok) throw new Error()
+      const review = { id: `${selectedProduct.id}-${Date.now()}`, productId: selectedProduct.id, authorId: session.email, authorName: session.name, comment: reviewText.trim(), rating: rating as 1 | 2 | 3 | 4 | 5, createdAt: new Date().toISOString() }
+      addReview(review)
+      setAllReviews(getReviews(productId))
+      setReviewText(''); setRating(0)
+      showToast('Thank you for your review')
+    } catch { showToast('We could not save your review right now. Please try again.') }
   }
 
   return (

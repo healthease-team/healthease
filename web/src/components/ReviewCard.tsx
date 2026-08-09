@@ -10,7 +10,7 @@ export default function ReviewCard({ review }: { review: Review }) {
     .toUpperCase()
 
   return (
-    <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-6 w-72 shrink-0 flex flex-col gap-3">
+    <div className="bg-surface rounded-2xl shadow-card border border-brand-navy/5 p-6 w-full min-w-0 flex flex-col gap-3">
       <i className="bi bi-quote text-3xl text-accent-blue" />
       <p className="text-text-muted text-sm flex-1">{review.comment}</p>
       <StarRating rating={review.rating} readOnly />

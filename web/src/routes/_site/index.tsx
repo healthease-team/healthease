@@ -1,13 +1,21 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import Hero from '#/components/Hero'
 import ProductCard from '#/components/ProductCard'
 import CategoryCard from '#/components/CategoryCard'
 import ReviewCard from '#/components/ReviewCard'
 import { products, categories, mustHaveProductIds, reviews } from '#/lib/mock-data'
+import type { Review } from '#/lib/types'
 
 export const Route = createFileRoute('/_site/')({ component: Home })
 
 function Home() {
+  const [testimonials, setTestimonials] = useState<Review[]>(reviews)
+  useEffect(() => {
+    fetch('/api/db/reviews?productId=account-review').then((response) => response.ok ? response.json() : []).then((rows: Array<{ id: string; productId: string; rating: number; comment: string; createdAt: string; user: { name: string | null } }>) => {
+      if (rows.length) setTestimonials(rows.map((row) => ({ id: row.id, productId: row.productId, authorName: row.user.name ?? 'HealthEase customer', comment: row.comment, rating: row.rating as Review['rating'], createdAt: row.createdAt })))
+    }).catch(() => undefined)
+  }, [])
   const mustHaveProducts = mustHaveProductIds
     .map((id) => products.find((p) => p.id === id))
     .filter((p): p is NonNullable<typeof p> => !!p)
@@ -102,7 +110,7 @@ function Home() {
             <p className="text-text-muted text-left">Real experiences from customers who trust HealthEase for everyday care.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {reviews.slice(0, 6).map((review) => (
+            {testimonials.slice(0, 6).map((review) => (
               <ReviewCard key={review.id} review={review} />
             ))}
           </div>

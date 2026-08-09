@@ -51,8 +51,7 @@ export type PaymentStatus = 'unpaid' | 'paid'
 
 export type OrderStatus =
   | 'pending'
-  | 'processing'
-  | 'ready'
+  | 'accepted'
   | 'ready_for_delivery'
   | 'ready_for_pickup'
   | 'on_its_way'
@@ -81,6 +80,7 @@ export interface Order {
   customerLat?: number
   customerLng?: number
   distanceKm?: number
+  deliveryNotes?: string
   prescriptionPath?: string
   idCardPath?: string
   bagTotal: number

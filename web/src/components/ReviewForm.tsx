@@ -23,6 +23,7 @@ export default function ReviewForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userEmail: session.email,
+          userName: session.name,
           productId: 'account-review',
           rating,
           comment: comment.trim(),

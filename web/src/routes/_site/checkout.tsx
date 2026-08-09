@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, createFileRoute } from '@tanstack/react-router'
 import OrderSummary from '#/components/OrderSummary'
 import CheckoutForm from '#/components/CheckoutForm'
 import { useCart } from '#/lib/cart-context'
 import { useToast } from '#/lib/toast-context'
 import type { DeliveryMethod } from '#/lib/types'
+import { clearCheckoutDraft, getCheckoutDraft, saveCheckoutDraft } from '#/lib/checkout-draft'
 
 export const Route = createFileRoute('/_site/checkout')({ component: CheckoutPage })
 
@@ -12,13 +13,15 @@ function CheckoutPage() {
   const { items, clearCart } = useCart()
   const { showToast } = useToast()
   const navigate = useNavigate()
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('pickup')
-  const [distanceKm, setDistanceKm] = useState<number | null>(null)
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(() => getCheckoutDraft().deliveryMethod ?? 'pickup')
+  const [distanceKm, setDistanceKm] = useState<number | null>(() => getCheckoutDraft().distanceKm ?? null)
   const [placed, setPlaced] = useState(false)
 
+  useEffect(() => { saveCheckoutDraft({ ...getCheckoutDraft(), deliveryMethod, distanceKm }) }, [deliveryMethod, distanceKm])
+
   function handlePlaceOrder() {
-    // TODO(phase-2): create real order in Supabase, redirect to Stripe Checkout, only mark placed on payment success
     clearCart()
+    clearCheckoutDraft()
     setPlaced(true)
     showToast('Order placed! We’ll be in touch shortly.')
   }
@@ -29,7 +32,7 @@ function CheckoutPage() {
         <i className="bi bi-check-circle text-5xl text-accent-blue" />
         <h1 className="text-2xl font-bold text-brand-navy mt-4">Order placed successfully!</h1>
         <p className="text-text-muted mt-2">
-          This is a mock confirmation — order history will appear on your Account page once accounts are wired up.
+          Your order has been sent to the selected pharmacy. You can view its status, documents, and delivery or pickup details in My Orders.
         </p>
         <button
           className="mt-6 text-link-blue hover:underline"
@@ -37,6 +40,7 @@ function CheckoutPage() {
         >
           Continue shopping
         </button>
+        <button className="ml-5 mt-6 text-link-blue hover:underline" onClick={() => navigate({ to: '/account' })}>View My Orders</button>
       </div>
     )
   }
