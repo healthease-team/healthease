@@ -15,6 +15,23 @@ export default function AdminHeader() {
             HealthEase <span className="text-accent-blue font-medium text-sm align-middle">Admin</span>
           </span>
         </Link>
+        <nav className="hidden sm:flex items-center gap-1">
+          <Link
+            to="/admin"
+            activeOptions={{ exact: true }}
+            className="px-3 py-1.5 rounded-full text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
+            activeProps={{ className: 'px-3 py-1.5 rounded-full text-sm font-medium bg-white/15 text-white' }}
+          >
+            Overview
+          </Link>
+          <Link
+            to="/admin/users"
+            className="px-3 py-1.5 rounded-full text-sm font-medium text-white/80 hover:text-white hover:bg-white/10"
+            activeProps={{ className: 'px-3 py-1.5 rounded-full text-sm font-medium bg-white/15 text-white' }}
+          >
+            Users
+          </Link>
+        </nav>
         <div className="flex items-center gap-3">
           <span className="text-sm text-white/80 hidden sm:inline">Pharmacy account</span>
           <ThemeToggle className="!text-white hover:!bg-white/10" />
