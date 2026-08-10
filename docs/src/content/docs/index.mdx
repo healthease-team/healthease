@@ -10,6 +10,10 @@ hero:
     - text: Gebruikershandleiding
       link: /handleiding/
       icon: right-arrow
+    - text: Technische documentatie
+      link: /technisch/
+      icon: setting
+      variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
@@ -21,5 +25,10 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 		Stap-voor-stap uitleg voor klanten (account, winkelen, bestellen) en
 		apotheekmedewerkers (dashboard, voorraad, bestellingen). Ga naar
 		[/handleiding](/handleiding/).
+	</Card>
+	<Card title="Technische documentatie" icon="setting">
+		Architectuur, databasemodel, authenticatie en ontwikkel-/deploy-workflow
+		voor ontwikkelaars die aan het project werken. Ga naar
+		[/technisch](/technisch/).
 	</Card>
 </CardGrid>

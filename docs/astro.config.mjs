@@ -6,7 +6,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'My Docs',
+			title: 'HealthEase Docs',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
 			sidebar: [
 				{
@@ -19,15 +19,14 @@ export default defineConfig({
 					],
 				},
 				{
-					label: 'Guides',
+					label: 'Technische documentatie',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
+						{ label: 'Overzicht & architectuur', slug: 'technisch' },
+						{ label: 'Project- en mappenstructuur', slug: 'technisch/structuur' },
+						{ label: 'Data & authenticatie', slug: 'technisch/data-en-auth' },
+						{ label: 'Ontwikkelen, testen & deployen', slug: 'technisch/ontwikkelen' },
+						{ label: 'Bekende aandachtspunten', slug: 'technisch/aandachtspunten' },
 					],
-				},
-				{
-					label: 'Reference',
-					items: [{ autogenerate: { directory: 'reference' } }],
 				},
 			],
 		}),
