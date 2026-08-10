@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
-    "build": "vite build",
+    "build": "prisma generate && vite build",
+    "postinstall": "prisma generate",
     "preview": "vite preview",
     "test": "vitest run",
     "format": "biome format",

@@ -1,5 +1,16 @@
 # Deployment checklist
 
+## Vercel
+
+1. Set **Root Directory** to `web` (this repo also contains a separate `docs/` app).
+2. Set **Framework Preset** to **TanStack Start** (not "Other" or "Vite").
+3. Do **not** override **Output Directory** — Nitro writes `.vercel/output` automatically when `preset: 'vercel'` is set in `vite.config.ts`.
+4. Remove any custom `vercel.json` that sets `outputDirectory` or rewrites; it can break routing and cause `404: NOT_FOUND`.
+5. Add environment variables: `DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (production URL, e.g. `https://your-app.vercel.app`).
+6. Redeploy with **Redeploy → without build cache** after changing framework or Nitro settings.
+
+## All hosts
+
 1. Set `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `BETTER_AUTH_URL` from `.env.example` in the hosting provider.
 2. Run `pnpm exec prisma migrate deploy` and `pnpm exec prisma db seed` against the production database.
 3. Deploy only behind HTTPS. Location access and secure session cookies depend on it.
