@@ -27,6 +27,12 @@ async function main() {
     where: { id }, create: { id, name, slug, image }, update: { name, slug, image },
   })))
 
+  await prisma.pharmacy.upsert({
+    where: { id: 'ph1' },
+    create: { id: 'ph1', name: 'HealthEase Central Pharmacy', address: 'Waterkant 1, Paramaribo', status: 'active' },
+    update: { name: 'HealthEase Central Pharmacy', address: 'Waterkant 1, Paramaribo', status: 'active' },
+  })
+
   const products = [
     { id: 'alcohol-swabs', name: 'Alcohol Swabs', description: 'Individually wrapped antiseptic swabs for quick clean-ups.', price: 15, categoryId: 'first-aid', imageUrl: '/images/products/alcohol-swabs.png', quantity: 80,
       ingredients: ['70% Isopropyl alcohol', 'Purified water'], dosage: 'Single-use swab per application; discard after one use.', usage: 'Tear open the pouch, wipe the skin or surface, and allow to air dry before injection or dressing.', conditions: ['Skin disinfection', 'Wound cleaning', 'Pre-injection prep'] },
@@ -95,6 +101,7 @@ async function main() {
     update: {},
   })
 
+  console.log('✅ Synced 1 pharmacy')
   console.log(`✅ Synced ${categories.length} product categories`)
   console.log(`✅ Synced ${products.length} HealthEase catalog products`)
   console.log('✅ Added sample orders and testimonial')

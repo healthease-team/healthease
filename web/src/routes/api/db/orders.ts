@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getOrdersByEmail, getOrdersByPharmacy, saveOrder, updateOrderStatus } from '#/lib/api/orders'
+import { getAllOrders, getOrdersByEmail, getOrdersByPharmacy, saveOrder, updateOrderStatus } from '#/lib/api/orders'
 import { requireSession } from '#/lib/auth'
 
 export const Route = createFileRoute('/api/db/orders')({
@@ -20,6 +20,10 @@ export const Route = createFileRoute('/api/db/orders')({
           if (pharmacyId) {
             if (user.role !== 'pharmacy' && user.role !== 'admin') return Response.json({ error: 'Not authorised' }, { status: 403 })
             const orders = await getOrdersByPharmacy(pharmacyId)
+            return Response.json(orders)
+          }
+          if (user.role === 'admin') {
+            const orders = await getAllOrders()
             return Response.json(orders)
           }
           return Response.json({ error: 'Missing email or pharmacyId' }, { status: 400 })

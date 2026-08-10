@@ -133,6 +133,11 @@ export async function getOrdersByPharmacy(pharmacyId: string) {
   return rows.map(mapOrder)
 }
 
+export async function getAllOrders() {
+  const rows = await fetchOrdersRaw({})
+  return rows.map(mapOrder)
+}
+
 export async function updateOrderStatus(orderId: string, status: string) {
   const row = await prisma.order.update({
     where: { id: orderId },

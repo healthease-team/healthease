@@ -25,6 +25,18 @@ export interface Pharmacy {
   lng: number
 }
 
+export type PharmacyStatus = 'pending' | 'active' | 'rejected'
+
+export interface AdminPharmacy {
+  id: string
+  name: string
+  address: string
+  ownerEmail?: string
+  status: PharmacyStatus
+  createdAt: string
+  productCount: number
+}
+
 export interface Category {
   id: string
   name: string

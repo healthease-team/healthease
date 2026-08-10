@@ -1,4 +1,40 @@
 import { prisma } from '#/db'
+import type { Message } from '#/lib/types'
+
+function mapMessage(row: {
+  id: string
+  name: string
+  email: string
+  location: string
+  type: string
+  message: string
+  createdAt: Date
+  readAt: Date | null
+}): Message {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    location: row.location,
+    type: row.type as Message['type'],
+    message: row.message,
+    createdAt: row.createdAt.toISOString(),
+    readAt: row.readAt ? row.readAt.toISOString() : undefined,
+  }
+}
+
+export async function listMessages() {
+  const rows = await prisma.contactMessage.findMany({ orderBy: { createdAt: 'desc' } })
+  return rows.map(mapMessage)
+}
+
+export async function markMessageRead(id: string) {
+  const row = await prisma.contactMessage.update({
+    where: { id },
+    data: { readAt: new Date() },
+  })
+  return mapMessage(row)
+}
 
 export async function saveContactMessage(input: {
   userEmail?: string
