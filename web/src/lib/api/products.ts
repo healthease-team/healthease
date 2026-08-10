@@ -16,6 +16,10 @@ export async function getProducts() {
       categoryId: row.categoryId,
       subCategory: row.subCategory as Product['subCategory'],
       imageUrl: row.imageUrl,
+      ingredients: row.ingredients,
+      dosage: row.dosage ?? undefined,
+      usage: row.usage ?? undefined,
+      conditions: row.conditions,
     } satisfies Product,
     stock: row.stock
       ? ({

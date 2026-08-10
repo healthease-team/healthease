@@ -73,12 +73,6 @@ function LoginPage() {
           Register
         </Link>
       </p>
-      <p className="text-center text-sm text-text-muted mt-1">
-        Own a pharmacy?{' '}
-        <Link to="/register/pharmacy" className="text-link-blue hover:underline">
-          Register your pharmacy
-        </Link>
-      </p>
     </AuthCard>
   )
 }

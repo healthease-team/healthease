@@ -13,7 +13,7 @@ function RegisterPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<AppRole>('customer')
+  const role: AppRole = 'customer'
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
@@ -29,18 +29,12 @@ function RegisterPage() {
     const user = result.data.user as typeof result.data.user & { role?: AppRole }
     setCustomerSession({ id: user.id, name: user.name ?? name, email: user.email, phone: '+597 000 0000', role: user.role ?? role })
 
-    if (role === 'pharmacy') {
-      navigate({ to: '/pharmacy/dashboard' })
-    } else if (role === 'admin') {
-      navigate({ to: '/admin' })
-    } else {
-      navigate({ to: '/account' })
-    }
+    navigate({ to: '/account' })
     setLoading(false)
   }
 
   return (
-    <AuthCard title="Create an account" subtitle="Choose the account type that fits your role">
+    <AuthCard title="Create an account" subtitle="Sign up for a customer account">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className={labelClass}>Full name</label>
@@ -53,14 +47,6 @@ function RegisterPage() {
         <div>
           <label className={labelClass}>Password</label>
           <input type="password" className={inputClass} value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </div>
-        <div>
-          <label className={labelClass}>Account type</label>
-          <select className={inputClass} value={role} onChange={(e) => setRole(e.target.value as AppRole)}>
-            <option value="customer">Customer</option>
-            <option value="pharmacy">Pharmacy</option>
-            <option value="admin">Admin</option>
-          </select>
         </div>
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
           {loading ? 'Creating account…' : 'Create account'}
