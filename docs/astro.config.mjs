@@ -10,6 +10,15 @@ export default defineConfig({
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
 			sidebar: [
 				{
+					label: 'Handleiding',
+					items: [
+						{ label: 'Overzicht', slug: 'handleiding' },
+						{ label: 'Voor klanten', slug: 'handleiding/klant' },
+						{ label: 'Voor apotheken', slug: 'handleiding/apotheek' },
+						{ label: 'Voor admins', slug: 'handleiding/admin' },
+					],
+				},
+				{
 					label: 'Guides',
 					items: [
 						// Each item here is one entry in the navigation menu.
