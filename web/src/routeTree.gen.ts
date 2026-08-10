@@ -23,6 +23,8 @@ import { Route as SiteFaqRouteImport } from './routes/_site/faq'
 import { Route as SiteShopRouteImport } from './routes/_site/shop'
 import { Route as SiteTermsRouteImport } from './routes/_site/terms'
 import { Route as SiteTestimonialsRouteImport } from './routes/_site/testimonials'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as PharmacyDashboardRouteImport } from './routes/pharmacy.dashboard'
 import { Route as SiteProductsProductIdRouteImport } from './routes/_site/products/$productId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -31,6 +33,7 @@ import { Route as ApiDbNotificationsRouteImport } from './routes/api/db/notifica
 import { Route as ApiDbOrdersRouteImport } from './routes/api/db/orders'
 import { Route as ApiDbProductsRouteImport } from './routes/api/db/products'
 import { Route as ApiDbReviewsRouteImport } from './routes/api/db/reviews'
+import { Route as ApiDbUsersRouteImport } from './routes/api/db/users'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -100,6 +103,16 @@ const SiteTestimonialsRoute = SiteTestimonialsRouteImport.update({
   path: '/testimonials',
   getParentRoute: () => SiteRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PharmacyDashboardRoute = PharmacyDashboardRouteImport.update({
   id: '/pharmacy/dashboard',
   path: '/pharmacy/dashboard',
@@ -140,11 +153,16 @@ const ApiDbReviewsRoute = ApiDbReviewsRouteImport.update({
   path: '/api/db/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDbUsersRoute = ApiDbUsersRouteImport.update({
+  id: '/api/db/users',
+  path: '/api/db/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof SiteIndexRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/checkout': typeof SiteCheckoutRoute
@@ -154,7 +172,9 @@ export interface FileRoutesByFullPath {
   '/shop': typeof SiteShopRoute
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
@@ -162,11 +182,11 @@ export interface FileRoutesByFullPath {
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
+  '/api/db/users': typeof ApiDbUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof SiteIndexRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/checkout': typeof SiteCheckoutRoute
@@ -176,7 +196,9 @@ export interface FileRoutesByTo {
   '/shop': typeof SiteShopRoute
   '/terms': typeof SiteTermsRoute
   '/testimonials': typeof SiteTestimonialsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
+  '/admin': typeof AdminIndexRoute
   '/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
@@ -184,13 +206,14 @@ export interface FileRoutesByTo {
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
+  '/api/db/users': typeof ApiDbUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/_site': typeof SiteRouteWithChildren
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_site/checkout': typeof SiteCheckoutRoute
@@ -200,8 +223,10 @@ export interface FileRoutesById {
   '/_site/shop': typeof SiteShopRoute
   '/_site/terms': typeof SiteTermsRoute
   '/_site/testimonials': typeof SiteTestimonialsRoute
+  '/admin/users': typeof AdminUsersRoute
   '/pharmacy/dashboard': typeof PharmacyDashboardRoute
   '/_site/': typeof SiteIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/_site/products/$productId': typeof SiteProductsProductIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/db/messages': typeof ApiDbMessagesRoute
@@ -209,6 +234,7 @@ export interface FileRoutesById {
   '/api/db/orders': typeof ApiDbOrdersRoute
   '/api/db/products': typeof ApiDbProductsRoute
   '/api/db/reviews': typeof ApiDbReviewsRoute
+  '/api/db/users': typeof ApiDbUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -225,7 +251,9 @@ export interface FileRouteTypes {
     | '/shop'
     | '/terms'
     | '/testimonials'
+    | '/admin/users'
     | '/pharmacy/dashboard'
+    | '/admin/'
     | '/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
@@ -233,11 +261,11 @@ export interface FileRouteTypes {
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
+    | '/api/db/users'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
-    | '/admin'
     | '/login'
     | '/register'
     | '/checkout'
@@ -247,7 +275,9 @@ export interface FileRouteTypes {
     | '/shop'
     | '/terms'
     | '/testimonials'
+    | '/admin/users'
     | '/pharmacy/dashboard'
+    | '/admin'
     | '/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
@@ -255,6 +285,7 @@ export interface FileRouteTypes {
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
+    | '/api/db/users'
   id:
     | '__root__'
     | '/_auth'
@@ -270,8 +301,10 @@ export interface FileRouteTypes {
     | '/_site/shop'
     | '/_site/terms'
     | '/_site/testimonials'
+    | '/admin/users'
     | '/pharmacy/dashboard'
     | '/_site/'
+    | '/admin/'
     | '/_site/products/$productId'
     | '/api/auth/$'
     | '/api/db/messages'
@@ -279,13 +312,14 @@ export interface FileRouteTypes {
     | '/api/db/orders'
     | '/api/db/products'
     | '/api/db/reviews'
+    | '/api/db/users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   SiteRoute: typeof SiteRouteWithChildren
   AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   PharmacyDashboardRoute: typeof PharmacyDashboardRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiDbMessagesRoute: typeof ApiDbMessagesRoute
@@ -293,6 +327,7 @@ export interface RootRouteChildren {
   ApiDbOrdersRoute: typeof ApiDbOrdersRoute
   ApiDbProductsRoute: typeof ApiDbProductsRoute
   ApiDbReviewsRoute: typeof ApiDbReviewsRoute
+  ApiDbUsersRoute: typeof ApiDbUsersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -395,6 +430,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SiteTestimonialsRouteImport
       parentRoute: typeof SiteRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/pharmacy/dashboard': {
       id: '/pharmacy/dashboard'
       path: '/pharmacy/dashboard'
@@ -451,6 +500,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDbReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/db/users': {
+      id: '/api/db/users'
+      path: '/api/db/users'
+      fullPath: '/api/db/users'
+      preLoaderRoute: typeof ApiDbUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -492,11 +548,23 @@ const SiteRouteChildren: SiteRouteChildren = {
 
 const SiteRouteWithChildren = SiteRoute._addFileChildren(SiteRouteChildren)
 
+interface AdminRouteChildren {
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   SiteRoute: SiteRouteWithChildren,
   AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   PharmacyDashboardRoute: PharmacyDashboardRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiDbMessagesRoute: ApiDbMessagesRoute,
@@ -504,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDbOrdersRoute: ApiDbOrdersRoute,
   ApiDbProductsRoute: ApiDbProductsRoute,
   ApiDbReviewsRoute: ApiDbReviewsRoute,
+  ApiDbUsersRoute: ApiDbUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

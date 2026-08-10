@@ -7,6 +7,15 @@ export interface Profile {
   role: UserRole
 }
 
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role: UserRole
+  createdAt: string
+  orderCount: number
+}
+
 export interface Pharmacy {
   id: string
   ownerId: string
