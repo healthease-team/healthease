@@ -65,8 +65,8 @@ export default function Navbar() {
                 </span>
               )}
             </Link>
-            <Link to={session?.role === 'customer' ? '/account' : '/login'} className="text-brand-navy hover:text-link-blue transition-colors" title={session ? `Signed in as ${session.name}` : 'Login or register'}>
-              {session?.name ? <span className="text-sm font-semibold">{session.name}</span> : <i className="bi bi-person-circle text-xl" />}
+            <Link to={session?.role === 'customer' ? '/account' : '/login'} className="text-brand-navy hover:text-link-blue transition-colors" title={session?.role === 'customer' ? 'Signed in as Customer' : 'Login or register'}>
+              {session?.role === 'customer' ? <span className="text-sm font-semibold">Customer</span> : <i className="bi bi-person-circle text-xl" />}
             </Link>
             <ThemeToggle />
           </div>
@@ -127,7 +127,7 @@ export default function Navbar() {
               className="text-brand-navy text-2xl font-semibold hover:text-link-blue transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
-              {session?.name ?? 'Login / Register'}
+              {session?.role === 'customer' ? 'Customer' : 'Login / Register'}
             </Link>
             <Button
               variant="outline"

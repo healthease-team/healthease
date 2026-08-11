@@ -4,6 +4,7 @@ import Button from '../ui/Button'
 import ThemeToggle from '../ui/ThemeToggle'
 import NewItemModal from './NewItemModal'
 import { useDashboardData } from '#/lib/dashboard-context'
+import { clearCustomerSession } from '#/lib/customer-auth'
 
 export default function DashboardHeader() {
   const navigate = useNavigate()
@@ -35,7 +36,7 @@ export default function DashboardHeader() {
           <ThemeToggle />
           <button
             className="text-text-muted-2 hover:text-brand-navy text-sm font-medium"
-            onClick={() => navigate({ to: '/login' })}
+            onClick={() => { clearCustomerSession(); navigate({ to: '/login' }) }}
           >
             Logout
           </button>

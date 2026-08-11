@@ -1,10 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import ThemeToggle from './ui/ThemeToggle'
-import { clearCustomerSession, getCustomerSession } from '#/lib/customer-auth'
+import { clearCustomerSession } from '#/lib/customer-auth'
 
 export default function AccountHeader() {
   const navigate = useNavigate()
-  const session = getCustomerSession()
 
   return (
     <header className="bg-surface shadow-sm">
@@ -19,9 +18,7 @@ export default function AccountHeader() {
         </Link>
         <div className="flex items-center gap-4">
           <Link to="/shop" className="text-sm font-semibold text-link-blue hover:underline">Back to shop</Link>
-          <span className="text-brand-navy text-sm hidden sm:inline">
-            Customer account · <span className="font-semibold">{session?.name ?? 'Customer'}</span>
-          </span>
+          <span className="text-brand-navy text-sm font-semibold hidden sm:inline">Customer</span>
           <ThemeToggle />
           <button
             className="text-text-muted-2 hover:text-brand-navy text-sm font-medium"

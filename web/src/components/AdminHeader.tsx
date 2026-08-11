@@ -1,5 +1,6 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import ThemeToggle from './ui/ThemeToggle'
+import { clearCustomerSession } from '#/lib/customer-auth'
 
 export default function AdminHeader() {
   const navigate = useNavigate()
@@ -33,9 +34,12 @@ export default function AdminHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-white/80 hidden sm:inline">Pharmacy account</span>
+          <span className="text-sm text-white/80 hidden sm:inline">Admin</span>
           <ThemeToggle className="!text-white hover:!bg-white/10" />
-          <button className="text-white/70 hover:text-white text-sm font-medium" onClick={() => navigate({ to: '/login' })}>
+          <button
+            className="text-white/70 hover:text-white text-sm font-medium"
+            onClick={() => { clearCustomerSession(); navigate({ to: '/login' }) }}
+          >
             Logout
           </button>
         </div>
