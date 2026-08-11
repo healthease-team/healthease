@@ -2,16 +2,22 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import Button from './ui/Button'
 import { inputClass, labelClass } from '#/lib/ui-classes'
-import { pharmacies } from '#/lib/mock-data'
+import { pharmacies, products } from '#/lib/mock-data'
 import { haversineKm } from '#/lib/geo'
 import { ADMIN_FEE, MAX_DELIVERY_DISTANCE_KM, PLATFORM_FEE, deliveryFee } from '#/lib/constants'
 import type { DeliveryMethod } from '#/lib/types'
-import { getCustomerSession } from '#/lib/customer-auth'
+import { getCustomerSession, setCustomerSession, type AppRole } from '#/lib/customer-auth'
 import { useCart } from '#/lib/cart-context'
 import { useToast } from '#/lib/toast-context'
 import { getCheckoutDraft, saveCheckoutDraft } from '#/lib/checkout-draft'
+import { authClient } from '#/lib/auth-client'
 
 const paymentMethods = ['cash', 'card'] as const
+
+// Orders can only be placed by a customer account. If the shopper is signed in as
+// admin/pharmacy (or not signed in at all), silently switch to the customer account
+// before submitting the order.
+const CUSTOMER_LOGIN = { email: 'kiran@gmail.com', password: 'shanil123' }
 
 interface CheckoutFormProps {
   deliveryMethod: DeliveryMethod
@@ -32,7 +38,7 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const draft = getCheckoutDraft()
   const session = getCustomerSession()
-  const { bagTotal, items } = useCart()
+  const { bagTotal, items, addItem } = useCart()
   const { showToast } = useToast()
   const [name, setName] = useState(draft.name ?? session?.name ?? '')
   const [email, setEmail] = useState(draft.email ?? session?.email ?? '')
@@ -127,6 +133,47 @@ export default function CheckoutForm({
     (deliveryMethod === 'pickup' || (billingAddress.trim() && (sameAsBilling ? deliveryAddress.trim() || true : deliveryAddress.trim()) && distanceKm !== null && distanceKm <= MAX_DELIVERY_DISTANCE_KM)) &&
     (paymentMethod === 'card' || Number(cashAmount || 0) >= totalDue)
 
+  function handleAutofill() {
+    if (cartIsEmpty) {
+      addItem(products[0])
+    }
+    setName(session?.name ?? 'Admin')
+    setEmail(session?.email ?? 'admin@healthease.com')
+    setPhone((session?.phone ?? '+597 000 0000').replace(/\D/g, ''))
+    setPrescription(new File(['prescription'], 'prescription.pdf', { type: 'application/pdf' }))
+    setIdCard(new File(['id-card'], 'id-card.pdf', { type: 'application/pdf' }))
+    setTermsAccepted(true)
+    setPaymentMethod('cash')
+    setCashAmount('1000')
+    if (deliveryMethod === 'delivery') {
+      setBillingAddress('Waterkant 1, Paramaribo')
+      setSameAsBilling(true)
+      setCustomerLocation({ lat: pharmacies[0].lat, lng: pharmacies[0].lng })
+      onDistanceChange(2)
+    }
+  }
+
+  async function ensureCustomerLogin() {
+    const current = getCustomerSession()
+    if (current?.role === 'customer') return current
+
+    const result = await authClient.signIn.email({ email: CUSTOMER_LOGIN.email, password: CUSTOMER_LOGIN.password })
+    if (result.error || !result.data?.user) {
+      window.alert('Could not sign in as customer to place this order.')
+      return null
+    }
+    const user = result.data.user as typeof result.data.user & { role?: AppRole }
+    const customerSession = {
+      id: user.id,
+      name: user.name ?? 'Customer',
+      email: user.email,
+      phone: current?.phone ?? '+597 000 0000',
+      role: user.role ?? 'customer',
+    }
+    setCustomerSession(customerSession)
+    return customerSession
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
 
@@ -137,13 +184,16 @@ export default function CheckoutForm({
 
     if (!isValid) return
 
+    const activeSession = await ensureCustomerLogin()
+    if (!activeSession) return
+
     try {
       const [prescriptionPath, idCardPath] = await Promise.all([fileToDataUrl(prescription), fileToDataUrl(idCard)])
       const response = await fetch('/api/db/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userEmail: session?.email ?? 'guest@example.com',
+          userEmail: activeSession.email,
           pharmacyId,
           customerName: name,
           email,
@@ -342,6 +392,10 @@ export default function CheckoutForm({
           Terms &amp; Conditions
         </Link>
       </label>
+
+      <Button type="button" variant="outline" className="w-full" onClick={handleAutofill}>
+        Autofill
+      </Button>
 
       <Button type="submit" variant="primary" className="w-full" disabled={!isValid}>
         Place Order

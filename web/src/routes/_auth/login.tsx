@@ -8,6 +8,12 @@ import { authClient } from '#/lib/auth-client'
 
 export const Route = createFileRoute('/_auth/login')({ component: LoginPage })
 
+const QUICK_LOGINS: { label: string; role: AppRole; email: string; password: string }[] = [
+  { label: 'Admin', role: 'admin', email: 'admin@healthease.com', password: 'admin123' },
+  { label: 'Pharmacy', role: 'pharmacy', email: 'pharmacy@healthease.com', password: 'pharmacy123' },
+  { label: 'Customer', role: 'customer', email: 'kiran@gmail.com', password: 'shanil123' },
+]
+
 function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -15,18 +21,17 @@ function LoginPage() {
   const [role, setRole] = useState<AppRole>('customer')
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  async function performLogin(loginEmail: string, loginPassword: string, loginRole: AppRole) {
     setLoading(true)
 
-    const result = await authClient.signIn.email({ email, password })
+    const result = await authClient.signIn.email({ email: loginEmail, password: loginPassword })
     if (result.error || !result.data?.user) {
       window.alert(result.error?.message ?? 'Invalid email or password')
       setLoading(false)
       return
     }
     const user = result.data.user as typeof result.data.user & { role?: AppRole }
-    if ((user.role ?? 'customer') !== role) {
+    if ((user.role ?? 'customer') !== loginRole) {
       await authClient.signOut()
       window.alert('This account does not have the selected role')
       setLoading(false)
@@ -34,14 +39,26 @@ function LoginPage() {
     }
     setCustomerSession({ id: user.id, name: user.name ?? 'Customer', email: user.email, phone: '+597 000 0000', role: user.role ?? 'customer' })
 
-    if (role === 'pharmacy') {
+    if (loginRole === 'pharmacy') {
       navigate({ to: '/pharmacy/dashboard' })
-    } else if (role === 'admin') {
+    } else if (loginRole === 'admin') {
       navigate({ to: '/admin' })
     } else {
       navigate({ to: '/account' })
     }
     setLoading(false)
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    await performLogin(email, password, role)
+  }
+
+  async function handleQuickLogin(ql: (typeof QUICK_LOGINS)[number]) {
+    setEmail(ql.email)
+    setPassword(ql.password)
+    setRole(ql.role)
+    await performLogin(ql.email, ql.password, ql.role)
   }
 
   return (
@@ -66,6 +83,23 @@ function LoginPage() {
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
           {loading ? 'Logging in…' : 'Log In'}
         </Button>
+        <div className="pt-2">
+          {/* <p className="text-center text-xs text-text-muted mb-2">Quick login</p> */}
+          <div className="flex gap-2">
+            {QUICK_LOGINS.map((ql) => (
+              <Button
+                key={ql.role}
+                type="button"
+                variant="outline"
+                className="flex-1"
+                disabled={loading}
+                onClick={() => handleQuickLogin(ql)}
+              >
+                {ql.label}
+              </Button>
+            ))}
+          </div>
+        </div>
       </form>
       <p className="text-center text-sm text-text-muted mt-5">
         Don&apos;t have an account?{' '}

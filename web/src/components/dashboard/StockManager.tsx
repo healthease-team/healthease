@@ -9,6 +9,7 @@ export default function StockManager() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null)
   const [draft, setDraft] = useState({ name: '', description: '', price: 0, categoryId: '', quantity: 0, imageUrl: '' })
+  const [imageUrlInput, setImageUrlInput] = useState('')
 
   const term = searchTerm.trim().toLowerCase()
   const visibleProducts = products.filter((p) => {
@@ -21,6 +22,7 @@ export default function StockManager() {
     const product = products.find((item) => item.id === productId)
     if (!product) return
     setDraft({ ...product, quantity: stock.find((entry) => entry.productId === productId)?.quantity ?? 0 })
+    setImageUrlInput('')
     setEditingId(productId)
   }
 
@@ -32,6 +34,7 @@ export default function StockManager() {
 
   function updateImage(file: File | undefined) {
     if (!file) return
+    setImageUrlInput('')
     const reader = new FileReader()
     reader.onload = () => setDraft((current) => ({ ...current, imageUrl: String(reader.result) }))
     reader.readAsDataURL(file)
@@ -69,6 +72,16 @@ export default function StockManager() {
               <select className="rounded border p-1 text-sm" value={draft.categoryId} onChange={(e) => setDraft({ ...draft, categoryId: e.target.value })}>{dashboardCategories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select>
               <input type="number" min={0} className="rounded border p-1 text-sm" value={draft.quantity} onChange={(e) => setDraft({ ...draft, quantity: Number(e.target.value) })} />
               <input type="file" accept="image/*" className="text-xs sm:col-span-2" onChange={(e) => updateImage(e.target.files?.[0])} />
+              <input
+                type="url"
+                placeholder="Or paste an image URL"
+                className="rounded border p-1 text-sm sm:col-span-2"
+                value={imageUrlInput}
+                onChange={(e) => {
+                  setImageUrlInput(e.target.value)
+                  setDraft((current) => ({ ...current, imageUrl: e.target.value }))
+                }}
+              />
             </div> : <><img src={product.imageUrl} alt="" className="h-10 w-10 rounded object-cover" /><div className="flex-1 min-w-0"><div className="text-sm font-medium text-brand-navy truncate">{product.name}</div><div className="text-xs text-text-muted-2">SRD {product.price} · Stock {stock.find((entry) => entry.productId === product.id)?.quantity ?? 0}</div></div></>}
             {editingId === product.id ? <><button className="text-xs font-semibold text-link-blue hover:underline" onClick={() => void saveEdit()}>Done</button><button className="text-xs" onClick={() => setEditingId(null)}>Cancel</button></> : <button className="text-xs font-semibold text-link-blue hover:underline" onClick={() => startEdit(product.id)}>Edit</button>}
             <button className="text-text-muted-2 hover:text-link-blue" onClick={() => setViewingProduct(product)} aria-label={`View ${product.name}`} title="View product details"><i className="bi bi-eye" /></button>

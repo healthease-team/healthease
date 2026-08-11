@@ -218,6 +218,13 @@ export default function UserTable() {
     setAddOpen(true)
   }
 
+  function handleAddAutofill() {
+    setAddName('Jane Doe')
+    setAddEmail(`customer.${Date.now()}@example.com`)
+    setAddPassword('customer123')
+    setAddRole('customer')
+  }
+
   async function confirmAdd() {
     const name = addName.trim()
     const email = addEmail.trim()
@@ -481,6 +488,9 @@ export default function UserTable() {
           <button className="text-xs px-4 py-2 rounded-full border border-brand-navy/15 text-brand-navy hover:bg-mint-light" onClick={() => setAddOpen(false)}>
             Cancel
           </button>
+          <Button variant="outline" className="!px-4 !py-2 text-xs" disabled={creating} onClick={handleAddAutofill}>
+            Autofill
+          </Button>
           <Button variant="primary" className="!px-4 !py-2 text-xs" disabled={creating} onClick={() => void confirmAdd()}>
             {creating ? 'Creating…' : 'Create user'}
           </Button>

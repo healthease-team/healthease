@@ -12,6 +12,11 @@ export default function ReviewForm() {
   const { showToast } = useToast()
   const session = getCustomerSession()
 
+  function handleAutofill() {
+    setRating(5)
+    setComment('Fast delivery, clear updates, and an easy checkout experience. Highly recommend HealthEase!')
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (rating === 0 || !comment.trim() || !session) return
@@ -61,6 +66,9 @@ export default function ReviewForm() {
             placeholder="Tell us about your experience..."
           />
         </div>
+        <Button type="button" variant="outline" onClick={handleAutofill} disabled={loading}>
+          Autofill
+        </Button>
         <Button type="submit" variant="primary" disabled={rating === 0 || !comment.trim() || loading}>
           {loading ? 'Submitting…' : 'Submit Review'}
         </Button>

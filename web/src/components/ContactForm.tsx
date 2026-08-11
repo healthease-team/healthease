@@ -15,6 +15,17 @@ export default function ContactForm() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
+  function handleAutofill() {
+    setName(session?.name ?? 'John Doe')
+    setEmail(session?.email ?? 'john.doe@example.com')
+    setLocation('Paramaribo, Suriname')
+    setMessage(
+      type === 'sponsoring'
+        ? 'We are interested in sponsoring HealthEase. Please send us more information about partnership opportunities.'
+        : 'We would like to schedule a consultation. Please let us know your availability.',
+    )
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
@@ -82,6 +93,9 @@ export default function ContactForm() {
             required
           />
         </div>
+        <Button type="button" variant="outline" className="w-full" onClick={handleAutofill} disabled={loading}>
+          Autofill
+        </Button>
         <Button type="submit" variant="primary" className="w-full" disabled={loading}>
           {loading ? 'Sending…' : 'Send Message'}
         </Button>

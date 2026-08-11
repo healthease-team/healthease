@@ -12,7 +12,19 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
   const [categoryId, setCategoryId] = useState(dashboardCategories[0].id)
   const [quantity, setQuantity] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [imageUrlInput, setImageUrlInput] = useState('')
   const [saving, setSaving] = useState(false)
+
+  function handleAutofill() {
+    setName('Sample Product')
+    setDescription('A high-quality item sourced from a trusted supplier.')
+    setCategoryId(dashboardCategories[0].id)
+    setPrice('25')
+    setQuantity('50')
+    const sampleImageUrl = 'https://static.vecteezy.com/system/resources/previews/026/568/107/large_2x/medicine-capsules-in-open-blister-pack-vector.jpg'
+    setImageUrl(sampleImageUrl)
+    setImageUrlInput(sampleImageUrl)
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -20,13 +32,14 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
     setSaving(true)
     try {
       await addProduct({ name, description, price: Number(price), categoryId, quantity: Number(quantity), imageUrl: imageUrl || '/images/products/bandages.png' })
-      setName(''); setDescription(''); setPrice(''); setQuantity(''); setImageUrl('')
+      setName(''); setDescription(''); setPrice(''); setQuantity(''); setImageUrl(''); setImageUrlInput('')
       onClose()
     } finally { setSaving(false) }
   }
 
   function handleImage(file: File | undefined) {
     if (!file) return
+    setImageUrlInput('')
     const reader = new FileReader()
     reader.onload = () => setImageUrl(String(reader.result))
     reader.readAsDataURL(file)
@@ -46,6 +59,16 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
         <div>
           <label className={labelClass}>Product photo</label>
           <input type="file" accept="image/*" className={inputClass} onChange={(e) => handleImage(e.target.files?.[0])} />
+          <input
+            type="url"
+            className={`${inputClass} mt-2`}
+            placeholder="Or paste an image URL"
+            value={imageUrlInput}
+            onChange={(e) => {
+              setImageUrlInput(e.target.value)
+              setImageUrl(e.target.value)
+            }}
+          />
           {imageUrl && <img src={imageUrl} alt="Product preview" className="mt-2 h-20 w-20 rounded-lg object-cover" />}
         </div>
         <div>
@@ -68,6 +91,9 @@ export default function NewItemModal({ open, onClose }: { open: boolean; onClose
             <input type="number" min={0} className={inputClass} value={quantity} onChange={(e) => setQuantity(e.target.value)} required />
           </div>
         </div>
+        <Button type="button" variant="outline" className="w-full" onClick={handleAutofill} disabled={saving}>
+          Autofill
+        </Button>
         <Button type="submit" variant="primary" className="w-full" disabled={saving}>
           {saving ? 'Adding…' : 'Add Product'}
         </Button>
