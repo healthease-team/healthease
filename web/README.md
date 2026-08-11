@@ -1,4 +1,4 @@
-# HealthEase — Web App
+# HealthEase — Web App.
 
 De HealthEase webapp: een apotheek-/gezondheidsplatform gebouwd met [TanStack Start](https://tanstack.com/start) en React. De app bedient drie rollen:
 
