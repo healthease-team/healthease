@@ -18,11 +18,37 @@ Voor uitgebreidere uitleg per rol, zie de gebruikers- en technische handleiding 
 - [Vitest](https://vitest.dev/) voor tests, [Biome](https://biomejs.dev/) voor linting/formatting
 - Nitro als server-adapter (draait op elke Node-compatibele host)
 
-## 🚀 Aan de slag
+## 🚀 Installation
+1. Navigate to the web directory:
+```bash
+cd web
+```
 
+2. Install dependencies:
 ```bash
 pnpm install
 ```
+
+3. Configure .env.local using .env.example as a guide[cite: 1].
+
+4. Deploy database schema and seed demo data:
+
+```bash
+pnpm exec prisma migrate deploy
+pnpm db:seed
+```
+
+5. Run the web app locally:
+
+```bash
+pnpm dev
+```
+
+## Prerequisites
+- Node.js 20+[cite: 1]
+- pnpm[cite: 1]
+- Neon PostgreSQL connection string[cite: 1]
+
 
 ### Environment variables
 
@@ -89,10 +115,3 @@ pnpm test
 ```
 
 Zie bijvoorbeeld [`src/lib/customer-auth.test.ts`](src/lib/customer-auth.test.ts) als voorbeeld van een bestaande test.
-
-## 📚 Meer documentatie
-
-- Technische handleiding & gebruikershandleiding (per rol: admin, apotheek, klant): [`docs/`](../docs) — een Starlight-site (`pnpm dev` vanuit `docs/`).
-- [TanStack documentatie](https://tanstack.com) / [TanStack Start](https://tanstack.com/start)
-- [Better Auth documentatie](https://www.better-auth.com)
-- Deploy-opties (Vercel, Netlify, Cloudflare, AWS Lambda, etc.): https://v3.nitro.build/deploy
