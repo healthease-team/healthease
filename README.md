@@ -10,33 +10,19 @@ Voor uitgebreidere uitleg per rol, zie de gebruikers- en technische handleiding 
 
 ## 🧱 Tech stack
 
-- **Documentation Framework:** Astro Starlight 
-- **Package Manager:** pnpm
+- [TanStack Start](https://tanstack.com/start) + [TanStack Router](https://tanstack.com/router) (file-based routing, server functions, API routes)
+- [TanStack Query](https://tanstack.com/query) voor data fetching
+- React 19, Tailwind CSS 4, [shadcn/ui](https://ui.shadcn.com/)-componenten
+- [Better Auth](https://www.better-auth.com) voor authenticatie
+- [Prisma](https://www.prisma.io) als ORM, PostgreSQL (Neon) als database
+- [Vitest](https://vitest.dev/) voor tests, [Biome](https://biomejs.dev/) voor linting/formatting
+- Nitro als server-adapter (draait op elke Node-compatibele host)
 
-## Prerequisites
-- Node.js 20+
-- pnpm (`npm install -g pnpm`)
-
-## 🚀 Installation
-
-1. Navigate to the docs directory:
-
-```bash
-cd docs
-```
-
-2. Install dependencies:
+## 🚀 Aan de slag
 
 ```bash
 pnpm install
 ```
-
-3. Start the documentation server:
-
-```bash
-pnpm dev
-```
-##  The documentation site will run at http://localhost:4321
 
 ### Environment variables
 
@@ -104,4 +90,9 @@ pnpm test
 
 Zie bijvoorbeeld [`src/lib/customer-auth.test.ts`](src/lib/customer-auth.test.ts) als voorbeeld van een bestaande test.
 
+## 📚 Meer documentatie
 
+- Technische handleiding & gebruikershandleiding (per rol: admin, apotheek, klant): [`docs/`](../docs) — een Starlight-site (`pnpm dev` vanuit `docs/`).
+- [TanStack documentatie](https://tanstack.com) / [TanStack Start](https://tanstack.com/start)
+- [Better Auth documentatie](https://www.better-auth.com)
+- Deploy-opties (Vercel, Netlify, Cloudflare, AWS Lambda, etc.): https://v3.nitro.build/deploy
